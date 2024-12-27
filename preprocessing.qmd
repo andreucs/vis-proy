@@ -1,0 +1,322 @@
+---
+title: "vis-proy"
+format: html
+editor: visual
+---
+
+```{r}
+setwd(".")
+
+list.of.packages <- c("sf", "plotly", "tidyverse", "rnaturalearth", "rnaturalearthhires", "readr", "crosstalk", "stringdist", "mapSpain", "viridis", "shiny")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+lapply(list.of.packages, require, character.only=TRUE)
+```
+
+```{r}
+turismo_receptor <- read_delim(
+  "data/turismo_receptor_provincia_pais.csv",
+  delim = ";",
+  locale = locale(decimal_mark = ",", encoding = "ISO-8859-1"),
+  col_types = cols(
+    AÑO = col_double(),
+    MES = col_double(),
+    TURISTAS = col_double(),
+    ESTANCIA_MEDIA = col_double(),
+    PROVINCIA_DESTINO = col_character(),
+    CONTINENTE_ORIGEN = col_character(),
+    PAIS_ORIGEN = col_character(),
+    PERNOCTACIONES = col_double()
+  )
+)
+```
+
+```{r}
+turismo_receptor
+```
+
+```{r}
+turismo_receptor <- turismo_receptor |> 
+  filter(!grepl("^Total", PAIS_ORIGEN))
+```
+
+```{r}
+c <- setdiff(paises, world$name_es)
+distance_matrix <- stringdistmatrix(c, world$name_es, method = "jw")
+
+closest_matches <- apply(distance_matrix, 1, function(row) {
+  world$name_es[which.min(row)]
+})
+
+
+matches <- data.frame(
+  Original = c,
+  Match = closest_matches
+)
+print(matches)
+
+```
+
+```{r}
+threshold <- 0.15 # Distancia máxima aceptable
+matches <- data.frame(
+  Original = c,
+  Match = apply(distance_matrix, 1, function(row) {
+    if (min(row) <= threshold) world$name_es[which.min(row)] else NA
+  })
+)
+
+
+matches <- matches[!is.na(matches$Match), ]
+
+# Mostrar el resultado
+print(matches)
+```
+
+```{r}
+# Comparar métodos
+methods <- c("lv", "dl", "jw", "qgram", "cosine", "jaccard")
+results <- sapply(methods, function(m) {
+  sapply(c, function(x) {
+    world$name_es[which.min(stringdist(x, world$name_es, method = m))]
+  })
+})
+
+# Ver resultados
+colnames(results) <- methods
+results
+```
+
+```{r}
+range(world$label_x)
+range(world$label_y)  
+```
+
+```{r}
+world |> 
+  mutate(geometry = st_make_valid(geometry)) |> 
+  select(geometry) |> 
+  mutate(centroid = st_centroid(geometry))
+```
+
+```{r}
+# tidy
+
+df |> 
+  left_join(world, by = c("PAIS_DESTINO" = "name_es"))
+```
+
+```{r}
+g <- list(
+  projection = list(type = 'equirectangular'),
+  showland = TRUE,
+  landcolor = toRGB("gray95"),
+  countrycolor = toRGB("gray80")
+)
+
+
+
+world <- ne_countries(returnclass = "sf")
+spain <- ne_states(country = "Spain", returnclass = "sf")
+
+plot_geo(world) |> 
+  add_markers(x=~label_x, y=~label_y)
+```
+
+```{r}
+w <- highlight_key(world, key=~name)
+widgets <- bscols(
+  widths = c(12),
+  filter_select("country", "Country", w,~name)
+)
+
+bscols(
+  widths = c(4,8), widgets,
+  plot_geo() |> 
+  add_markers(
+    data = w,
+    x = ~label_x,
+    y = ~label_y,
+    text = ~name,
+    marker = list(size = 6, color = "blue"),
+    hoverinfo = "text"
+  ) |> 
+  layout(
+    geo = g
+)
+)
+```
+
+## Gráficos
+
+```{r}
+
+hex_prov <- esp_get_hex_prov() |>
+            rename(PROVINCIA_DESTINO=ine.prov.name) |>
+            select(PROVINCIA_DESTINO, label, codauto, nuts2.name)
+
+#df <- merge(hex_prov, turismo_receptor, by="PROVINCIA_DESTINO")
+```
+
+```{r}
+# st_write(hex_prov, "spain_hex_prov.shp")
+```
+
+```{r}
+
+hex_prov_coords <- sf::st_coordinates(hex_prov$centroid)
+hex_prov$X <- hex_prov_coords[, 1]
+hex_prov$Y <- hex_prov_coords[, 2]
+
+
+p <- plot_ly() |>
+  add_sf(
+    data = hex_prov,
+    split = ~codauto,
+    hoveron = "fills",
+    hovertext = ~PROVINCIA_DESTINO,
+    line = list(width = 0.5, color = 'black')
+  ) |>
+  add_text(
+    data = hex_prov,
+    x = ~X,
+    y = ~Y,
+    text = ~PROVINCIA_DESTINO,
+    textfont = list(size = 7, color = "black"),
+    showlegend = FALSE
+  ) |>
+  layout(
+    title = "Plantilla mapa"
+  ) |>
+  hide_legend()
+
+p
+```
+
+```{r}
+top5 <- df |> 
+        group_by(AÑO, PROVINCIA_DESTINO, PAIS_ORIGEN) |>
+        summarise(m=sum(TURISTAS, na.rm=TRUE)) |>
+        arrange(desc(m)) |>
+        top_n(5)
+
+
+```
+
+```{r}
+datos <- data.frame(
+  pais = c("USA", "China", "India", "Russia", "Spain", "Brazil", "UK", "France", "Italy"),
+  valor = c(149300000, 140371452, 106950055, 80377636, 56329242, 51719147, 42860928, 36626686, 34282663),
+  bandera_url = c(
+    "https://flagcdn.com/us.svg",
+    "https://flagcdn.com/cn.svg",
+    "https://flagcdn.com/in.svg",
+    "https://flagcdn.com/ru.svg",
+    "https://flagcdn.com/es.svg",
+    "https://flagcdn.com/br.svg",
+    "https://flagcdn.com/gb.svg",
+    "https://flagcdn.com/fr.svg",
+    "https://flagcdn.com/it.svg"
+  )
+)
+
+
+grafico <- plot_ly(
+  data = datos,
+  x = ~valor,
+  y = ~reorder(pais, valor),
+  type = 'bar',
+  orientation = 'h',
+  marker = list(color = 'rgba(100, 200, 255, 0.7)'),
+  text = ~scales::comma(valor), 
+  textposition = 'auto'
+)
+
+imagenes <- lapply(seq_len(nrow(datos)), function(i) {
+  list(
+    source = datos$bandera_url[i],
+    xref = "x", yref = "y",
+    x = datos$valor[i] + max(datos$valor) * 0.06,
+    y = datos$pais[i],
+    sizex = max(datos$valor) * 0.06,
+    sizey = 1,
+    xanchor = "left", yanchor = "middle",
+    layer = "above"
+  )
+})
+
+
+grafico <- grafico |>
+  layout(
+    title = "Plantilla barras",
+    xaxis = list(
+      title = "",
+      showgrid = FALSE,
+      range = c(0, max(datos$valor) * 1.2)
+    ),
+    yaxis = list(title = "", showgrid = FALSE),
+    images = imagenes,
+    annotations = list(text = "AÑO", 
+                       x = 1,
+                       y = 0,
+                       xref = "paper", 
+                       yref = "paper",
+                       showarrow = FALSE, 
+                       font = list(size = 100,color = "lightgray"))
+  )
+
+grafico
+```
+
+Con nuestros datos
+
+```{r}
+aggregate_turismo_receptor <- turismo_receptor |>
+                              group_by(AÑO, PROVINCIA_DESTINO) |>
+                              summarise(m=sum(TURISTAS))
+                              
+```
+
+```{r}
+hex_prov <- esp_get_hex_prov() |>
+            rename(PROVINCIA_DESTINO=ine.prov.name) |>
+            select(PROVINCIA_DESTINO, label, codauto, nuts2.name)
+
+
+
+hex_prov_coords <- hex_prov$geom |> st_centroid() |> st_coordinates()
+hex_prov$X <- hex_prov_coords[, 1]
+hex_prov$Y <- hex_prov_coords[, 2]
+
+
+completo <- merge(aggregate_turismo_receptor, hex_prov, by="PROVINCIA_DESTINO") |> st_as_sf() 
+
+env <- completo |> highlight_key(~PROVINCIA_DESTINO)
+
+p <- completo
+  plot_ly() |>
+  group_by(PROVINCIA_DESTINO) |>
+  add_sf(
+    data = completo,
+    split = ~PROVINCIA_DESTINO,
+    hoveron = "fills",
+    hovertext = ~PROVINCIA_DESTINO,
+    line = list(width = 0.5, color = 'black')
+  ) |>
+  add_text(
+    data = hex_prov,
+    x = ~X,
+    y = ~Y,
+    text = ~PROVINCIA_DESTINO,
+    textfont = list(size = 7, color = "black"),
+    showlegend = FALSE
+  ) |>
+  layout(
+    title = "Plantilla mapa"
+  ) |>
+  hide_legend() |>
+  highlight(on="plotly_click", selectize = TRUE)
+
+p
+
+```

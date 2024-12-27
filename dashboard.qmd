@@ -1,0 +1,105 @@
+---
+title: "My Dashboard"
+format: dashboard
+theme: minty
+server: shiny
+---
+
+
+```{r}
+#| context: setup
+library(readr)
+library(plotly)
+library(dplyr)
+library(sf)
+library(mapSpain)
+
+
+turismo_receptor <- read_delim(
+  "data/turismo_receptor_provincia_pais.csv",
+  delim = ";",
+  locale = locale(decimal_mark = ",", encoding = "ISO-8859-1"),
+  col_types = cols(
+    AÑO = col_double(),
+    MES = col_double(),
+    TURISTAS = col_double(),
+    ESTANCIA_MEDIA = col_double(),
+    PROVINCIA_DESTINO = col_character(),
+    CONTINENTE_ORIGEN = col_character(),
+    PAIS_ORIGEN = col_character(),
+    PERNOCTACIONES = col_double()
+  )
+)
+
+
+hex_prov <- esp_get_hex_prov() |>
+  rename(PROVINCIA_DESTINO = ine.prov.name) |>
+  select(PROVINCIA_DESTINO, label, codauto, nuts2.name, geom)
+
+
+hex_prov_coords <- hex_prov$geom |> st_centroid() |> st_coordinates()
+hex_prov$X <- hex_prov_coords[, 1]
+hex_prov$Y <- hex_prov_coords[, 2]
+
+tur_total_year <- turismo_receptor |>
+                  group_by(AÑO, PROVINCIA_DESTINO) |>
+                  summarise(m=sum(TURISTAS))
+
+completo <- merge(tur_total_year, hex_prov, by = "PROVINCIA_DESTINO") |>
+  st_as_sf()
+```
+
+
+# Page 1
+
+## Column 1 {.sidebar}
+
+```{r}
+selectInput("year", "Año", choices = unique(tur_total_year$AÑO))
+```
+
+
+## Column 2
+
+### Row 1
+
+
+```{r}
+plotlyOutput("hexmap")
+```
+
+```{r}
+plotlyOutput("barplot")
+```
+
+
+
+### Row {height=50% .tabset}
+
+#### Tab 1
+
+Hello
+
+#### Tab 2
+
+Bye
+
+
+
+
+```{r}
+#| context: server
+
+
+source("server/filter_functions.R")
+source("server/hexmap_render.R")
+source("server/barplot_click_render.R")
+
+filtered_data <- get_filtered_data(input, completo)
+
+render_hexmap(output, input, filtered_data, hex_prov)
+
+render_barplot(output, input, turismo_receptor, hex_prov)
+
+
+```
