@@ -118,15 +118,23 @@ plotlyOutput("barplot")
 plotlyOutput("barplot")
 ```
 
-#### {width=50% .tabset}
+```{r}
+navset_pill( 
+    nav_panel("A", "Page A content"), 
+    nav_panel("B", "Page B content"), 
+    nav_panel("C", "Page C content"), 
+    nav_menu( 
+        "Other links", 
+        nav_panel("D", "Panel D content"), 
+        "----", 
+        "Description:", 
+        nav_item( 
+            a("Shiny", href = "https://shiny.posit.co", target = "_blank") 
+        ), 
+    ), 
+  )
+```
 
-##### Tab 1
-
-hello
-
-##### Tab2
-
-hello
 
 ```{r}
 #| context: server
