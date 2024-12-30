@@ -318,5 +318,89 @@ p <- completo
   highlight(on="plotly_click", selectize = TRUE)
 
 p
-
 ```
+
+
+```{r}
+p1 <- plot_ly() |>
+     layout(
+       title=list(
+         text="Profit",
+         x=0.5,
+         y=0.95,
+         xanchor="right",
+         font=list(
+           size=90
+         )
+       ),
+       xaxis=list(
+         showgrid=FALSE,
+         zeroline=FALSE,
+         showticklabels=FALSE
+       ),
+       yaxis=list(
+         showgrid=FALSE,
+         zeroline=FALSE,
+         showticklabels=FALSE
+       ),
+       annotations = list(
+         list(text = "76%", 
+                       x = 0.12,
+                       y = 0.5,
+                       xref = "paper", 
+                       yref = "paper",
+                       showarrow = FALSE, 
+                       font = list(size = 160,color = "lightgray")),
+          list(text = "76%", 
+                       x = 0.12,
+                       y = 0,
+                       xref = "paper", 
+                       yref = "paper",
+                       showarrow = FALSE, 
+                       font = list(size = 50, color = "lightgreen"))
+       )
+      )
+
+
+p2 <- mtcars |> plot_ly(x=~mpg) 
+
+p1
+```
+
+
+```{r}
+fig <- plot_ly(
+    type = "sankey",
+    orientation = "h",
+
+    node = list(
+      label = c("Valencia", "Baleares", "Barcelona", "Baleares", "Valencia", "Barcelona"),
+      x = c(0.1,0.1,0.1,0.6,0.6,0.6),
+      y = c(0.1,0.3,0.6,0.1,0.3,0.6),
+      color = c("rgba(0,0,255,0.5)", "blue", "blue", "blue"),
+      pad = 15,
+      thickness = 20,
+      line = list(
+        color = "black",
+        width = 0.5
+      )
+    ),
+
+    link = list(
+      source = c(0,1,2),
+      target = c(4,3,5),
+      value =  c(0.1,0.1,0.1)
+    )
+  )
+fig <- fig %>% layout(
+    title = "Basic Sankey Diagram",
+    font = list(
+      size = 10
+    )
+)
+
+fig
+```
+
+
+

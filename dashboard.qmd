@@ -13,6 +13,8 @@ library(plotly)
 library(dplyr)
 library(sf)
 library(mapSpain)
+library(bslib)
+library(bsicons)
 
 
 turismo_receptor <- read_delim(
@@ -52,21 +54,52 @@ completo <- merge(tur_total_year, hex_prov, by = "PROVINCIA_DESTINO") |>
 
 # Page 1
 
-## Column 1 {.sidebar}
+## sidebar {.sidebar}
 
 ```{r}
 selectInput("year", "Año", choices = unique(tur_total_year$AÑO))
 ```
 
 
-## Column 2
+## dasboardPanel
 
-### Row 1
+### firstRow {height=50%}
 
+#### hexMap {width=45%}
 
 ```{r}
 plotlyOutput("hexmap")
 ```
+
+#### kpiLayout {width=55%}
+
+##### kpiOnly {height=40%}
+
+```{r}
+value_box(
+  title="Customer",
+  value="$5000"
+)
+```
+
+```{r}
+value_box(
+  title="Customer",
+  value="$5000"
+)
+```
+
+```{r}
+value_box(
+  title="Customer",
+  value="$5000"
+)
+```
+
+
+##### kpicharts {height=60%}
+
+hello
 
 ```{r}
 plotlyOutput("barplot")
@@ -74,18 +107,26 @@ plotlyOutput("barplot")
 
 
 
-### Row {height=50% .tabset}
-
-#### Tab 1
-
-Hello
-
-#### Tab 2
-
-Bye
 
 
 
+### secondRow {height=50%}
+
+#### {width=50%}
+
+```{r}
+plotlyOutput("barplot")
+```
+
+#### {width=50% .tabset}
+
+##### Tab 1
+
+hello
+
+##### Tab2
+
+hello
 
 ```{r}
 #| context: server
