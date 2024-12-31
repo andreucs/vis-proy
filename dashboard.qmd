@@ -60,6 +60,15 @@ completo <- merge(tur_total_year, hex_prov, by = "PROVINCIA_DESTINO") |>
 selectInput("year", "Año", choices = unique(tur_total_year$AÑO))
 ```
 
+-------------------------------
+**Autores:**
+
+|                             |
+|-----------------------------|
+| **Andreu Bonet Pavia**      |
+| **Anna Gil Moliner**        |
+| **Laiqian Ji**              |
+| **Ernesto Martínez Gómez**  |            
 
 ## dasboardPanel
 
@@ -118,23 +127,63 @@ plotlyOutput("barplot")
 plotlyOutput("barplot")
 ```
 
+# Page 2
+
+## sidebar {.sidebar}
+
+
+## Dasboard Panel
+
+### Colum {height=20%}
+
 ```{r}
-navset_pill( 
-    nav_panel("A", "Page A content"), 
-    nav_panel("B", "Page B content"), 
-    nav_panel("C", "Page C content"), 
-    nav_menu( 
-        "Other links", 
-        nav_panel("D", "Panel D content"), 
-        "----", 
-        "Description:", 
-        nav_item( 
-            a("Shiny", href = "https://shiny.posit.co", target = "_blank") 
-        ), 
-    ), 
-  )
+
+value_box(
+  title="Customer",
+  value="$5000",
+  theme="primary",
+  showcase=bsicons::bs_icon("bank2")
+)
 ```
 
+```{r}
+
+value_box(
+  title="Customer",
+  value="$5000",
+  theme="primary"
+)
+```
+
+```{r}
+
+value_box(
+  title="Customer",
+  value="$5000",
+  theme="primary"
+)
+```
+
+
+
+### Row {height=50%}
+
+
+```{r}
+plot(iris)
+```
+
+
+
+
+### Colum
+
+```{r}
+value_box(
+  title="Customer",
+  value="$5000"
+)
+```
 
 ```{r}
 #| context: server

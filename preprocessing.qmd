@@ -320,7 +320,6 @@ p <- completo
 p
 ```
 
-
 ```{r}
 p1 <- plot_ly() |>
      layout(
@@ -367,7 +366,6 @@ p2 <- mtcars |> plot_ly(x=~mpg)
 p1
 ```
 
-
 ```{r}
 fig <- plot_ly(
     type = "sankey",
@@ -402,15 +400,13 @@ fig <- fig %>% layout(
 fig
 ```
 
-
-
 ```{r}
 ocup <- read_csv("data/ocupacion.csv")
 ```
 
 ```{r}
 ocup
-``` 
+```
 
 ```{r}
 
@@ -446,32 +442,38 @@ fig <- df %>%
 # Configuración del gráfico
 fig <- fig %>% layout(
   title = "Evolución de Viajeros en Álava",
-  xaxis = list(title = "Fecha (Año Decimal)", zeroline = F),
-  yaxis = list(title = "Viajeros", zeroline = F)
+  xaxis = list(title = "Fecha (Año Decimal)", zeroline = F, range=c(1999, 2024)),
+  yaxis = list(title = "Viajeros", zeroline = F, range=c(0, 500000))
 )
 
 # Configuración de la animación
-fig <- fig %>% animation_opts(
-  frame = 50, 
-  transition = 0, 
-  redraw = FALSE
-)
-fig <- fig %>% animation_slider(
-  hide = T
-)
-fig <- fig %>% animation_button(
-  x = 1, xanchor = "right", y = 0, yanchor = "bottom"
-)
+#fig <- fig %>% animation_opts(
+#  frame = 50, 
+#  transition = 0, 
+#  redraw = FALSE
+#)
+#fig <- fig %>% animation_slider(
+#  hide = T
+#)
+#fig <- fig %>% animation_button(
+#  x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+#)
 
-# Mostrar el gráfico
-fig
+subplot(fig,fig) |>
+  hide_legend()|>
+  animation_opts(
+   frame = 50, 
+   transition = 0, 
+redraw = FALSE
+) 
+
 ```
-
 
 ```{r}
 rank <- read_csv("data/turismo_provincias_rank_bump.csv")
 rank
 ```
+
 ```{r}
 rank_top_5 <- rank |>
               filter(Position < 6, Province != "Total") |>
@@ -482,7 +484,6 @@ rank_top_5 <- rank |>
                      
 rank_top_5
 ```
-
 
 ```{r}
 year <- rep(2019:2021, 4)
@@ -514,5 +515,3 @@ p <- ggplot(rank_top_5, aes(x = Year, y = Position, color = Prov)) +
 p |> ggplotly(tooltip = "text")
 
 ```
-
-
