@@ -425,10 +425,10 @@ accumulate_by <- function(dat, var) {
   dplyr::bind_rows(dats)
 }
 
-# Acumular datos por la columna 'date'
+
 df <- df %>% accumulate_by(~date)
 
-# Crear el gráfico interactivo
+
 fig <- df %>%
   plot_ly(
     x = ~date, 
@@ -439,11 +439,10 @@ fig <- df %>%
     line = list(simplify = F)
   )
 
-# Configuración del gráfico
 fig <- fig %>% layout(
   title = "Evolución de Viajeros en Álava",
-  xaxis = list(title = "Fecha (Año Decimal)", zeroline = F, range=c(1999, 2024)),
-  yaxis = list(title = "Viajeros", zeroline = F, range=c(0, 500000))
+  xaxis = list(title = "Fecha (Año Decimal)", zeroline = TRUE, range=c(1999, 2024)),
+  yaxis = list(title = "Viajeros", zeroline = TRUE, range=c(0, 500000))
 )
 
 # Configuración de la animación
@@ -470,7 +469,7 @@ redraw = FALSE
 ```
 
 ```{r}
-rank <- read_csv("data/turismo_provincias_rank_bump.csv")
+rank <- read_csv("data/turismo_provincias_rank_bump_top5.csv")
 rank
 ```
 
@@ -512,6 +511,19 @@ p <- ggplot(rank_top_5, aes(x = Year, y = Position, color = Prov)) +
   theme_void() +
   theme(legend.position = "none")
 
-p |> ggplotly(tooltip = "text")
+p |> ggplotly(tooltip = "text") |>
+       layout(
+       title="Mapa",
+       xaxis=list(
+         showgrid=FALSE,
+         zeroline=FALSE,
+         showticklabels=FALSE
+       ),
+       yaxis=list(
+         showgrid=FALSE,
+         zeroline=FALSE,
+         showticklabels=FALSE
+       )
+      )
 
 ```
