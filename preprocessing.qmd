@@ -531,6 +531,9 @@ redraw = FALSE
 
 ```
 
+
+
+
 ```{r}
 rank <- read_csv("data/turismo_provincias_rank_bump_top5.csv")
 rank
@@ -538,14 +541,161 @@ rank
 
 ```{r}
 rank_top_5 <- rank |>
-              filter(Position < 6, Province != "Total") |>
-              mutate(Prov=as.factor(Province)) |>
-              mutate(hover_info = paste("Año:", Year, "<br>Posición:", Position, "<br>Provincia:", "32553"))
+              filter(Position < 6, Province != "Total")
 
 
                      
-rank_top_5
+data <- rank_top_5
 ```
+
+
+
+```{r}
+
+
+
+p <- plot_ly()
+
+for (provincia in unique(data$Province)) {
+  data_provincia <- data %>% filter(Province == provincia)
+  
+  p <- add_trace(
+    p,
+    x = data_provincia$Year,
+    y = data_provincia$Position,
+    mode = "lines+markers",
+    name = provincia,
+    type = "scatter",
+    marker = list(size = 10)
+  )
+}
+
+annotations <- list()
+
+for (provincia in unique(data$Province)) {
+  data_provincia <- data %>% filter(Province == provincia)
+  
+  annotations <- append(annotations, list(
+    list(
+      x = min(data_provincia$Year) - 0.2,
+      y = data_provincia$Position[data_provincia$Year == min(data_provincia$Year)],
+      text = provincia,
+      showarrow = FALSE,
+      xanchor = "right",
+      font = list(size = 12)
+    )
+  ))
+  
+  annotations <- append(annotations, list(
+    list(
+      x = max(data_provincia$Year) + 0.2,
+      y = data_provincia$Position[data_provincia$Year == max(data_provincia$Year)],
+      text = provincia,
+      showarrow = FALSE,
+      xanchor = "left",
+      font = list(size = 12)
+    )
+  ))
+}
+
+
+p <- layout(
+  p,
+  title = "Chupapinga",
+  xaxis = list(showgrid = FALSE,
+               tickvals=unique(data$Year)),
+  yaxis = list(showgrid = FALSE, showticklabels = FALSE),
+  legend = list(title = list(text = "Provincias")),
+  annotations = annotations
+) |> hide_legend()
+
+p
+```
+
+
+```{r}
+
+data_highlight <- highlight_key(data, key = ~Province)
+
+p <- plot_ly(data_highlight)
+
+p <- p %>%
+  group_by(Province) %>%
+  add_lines(
+    x = ~Year,
+    y = ~Position,
+    name = ~Province,
+    mode = "lines+markers",
+    marker = list(size = 10),
+    text = ~Province
+  )
+
+
+annotations <- list()
+
+for (provincia in unique(data$Province)) {
+  data_provincia <- data %>% filter(Province == provincia)
+  
+  annotations <- append(annotations, list(
+    list(
+      x = min(data_provincia$Year) - 0.5,
+      y = data_provincia$Position[data_provincia$Year == min(data_provincia$Year)],
+      text = provincia,
+      showarrow = FALSE,
+      xanchor = "right",
+      font = list(size = 12)
+    )
+  ))
+  
+  annotations <- append(annotations, list(
+    list(
+      x = max(data_provincia$Year) + 0.5, # Margen extra
+      y = data_provincia$Position[data_provincia$Year == max(data_provincia$Year)],
+      text = provincia,
+      showarrow = FALSE,
+      xanchor = "left",
+      font = list(size = 12)
+    )
+  ))
+}
+
+p <- layout(
+  p,
+  title = "Chupapinga",
+  xaxis = list(
+    title = "",
+    showgrid = FALSE,
+    tickvals = unique(data$Year)
+  ),
+  yaxis = list(
+    showgrid = FALSE,
+    showticklabels = FALSE,
+    title = ""
+  ),
+  legend = list(
+    title = list(text = "Provincias")
+  ),
+  annotations = annotations,
+  autosize = FALSE,
+  width = 800,
+  height = 400
+) |> hide_legend()
+
+
+p <- highlight(
+  p,
+  on = "plotly_click",
+  off = "plotly_doubleclick",
+  #selectize = T, SHIFT+click emula la accion
+  dynamic = T
+)
+
+
+p
+```
+
+
+
 
 ```{r}
 year <- rep(2019:2021, 4)
@@ -590,3 +740,5 @@ p |> ggplotly(tooltip = "text") |>
       )
 
 ```
+
+
