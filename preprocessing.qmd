@@ -152,21 +152,84 @@ bscols(
 ```{r}
 
 hex_prov <- esp_get_hex_prov() |>
-            rename(PROVINCIA_DESTINO=ine.prov.name) |>
-            select(PROVINCIA_DESTINO, label, codauto, nuts2.name)
+  rename(PROVINCIA_DESTINO = ine.prov.name) |>
+  select(PROVINCIA_DESTINO, label, codauto, nuts2.name, geom)
 
-#df <- merge(hex_prov, turismo_receptor, by="PROVINCIA_DESTINO")
-```
 
-```{r}
-# st_write(hex_prov, "spain_hex_prov.shp")
-```
-
-```{r}
-
-hex_prov_coords <- sf::st_coordinates(hex_prov$centroid)
+hex_prov_coords <- hex_prov$geom |> st_centroid() |> st_coordinates()
 hex_prov$X <- hex_prov_coords[, 1]
 hex_prov$Y <- hex_prov_coords[, 2]
+
+tur_total_year <- turismo_receptor |>
+                  group_by(AÑO, PROVINCIA_DESTINO) |>
+                  summarise(m=sum(TURISTAS))
+
+completo <- merge(tur_total_year, hex_prov, by = "PROVINCIA_DESTINO") |>
+  st_as_sf()
+
+
+```
+
+```{r}
+completo_filtrado <- completo %>%
+  filter(AÑO == 2023) %>% # Filtrar para el año seleccionado
+  mutate(rango_turistas = cut(
+    m,
+    breaks = c(0, 6e6, 9e6, 12e6, 15e6, Inf),
+    labels = c("0-6M", "6-9M", "9-12M", "12-15M", "15M+"),
+    include.lowest = TRUE
+  ))
+
+
+```
+
+```{r}
+plot_ly(source = "hexmap_source", data = completo) |>
+  filter(AÑO == 2023) |>  # Filtrar por año seleccionado en Shiny
+  add_sf(
+    split = ~NULL, # Para que no salga la leyenda por provincias
+    color = ~cut(m, 
+                 breaks = c(0, 5e5, 1e6, 5e6, 10e6, Inf),
+                 labels = c("0k-5k", "5k-1M", "1M-5M", "5M-10M", "10M+")),
+    colors = c("#FFEDA0", "#FEB24C", "#FD8D3C", "#FC4E2A", "#E31A1C"), # Colores específicos
+    hoveron = "fills",
+    hovertext = ~paste("Provincia:", PROVINCIA_DESTINO, "<br>Turistas:", format(m, big.mark = ",")),
+    showlegend = TRUE
+  ) |>
+  add_text(
+    data = hex_prov,
+    x = ~X,
+    y = ~Y,
+    text = ~label,
+    textfont = list(size = 10, color = "black"),
+    showlegend = FALSE
+  ) |>
+  layout(
+    title = list(
+      text = paste("Mapa Hexagonal de España - Año", 2023),
+      xanchor = "center",
+      font = list(size = 20)
+    ),
+      
+    hovermode = "closest",
+    legend = list(
+      orientation = "h",        # Leyenda en orientación horizontal
+      xanchor = "center",       # Centrar la leyenda
+      x = 0.5,                  # Posición horizontal
+      y = 1.1,
+      font = list(size = 8)
+    ),
+    margin = list(t = 80) # Ajustar el margen superior para la leyenda
+  )
+```
+
+
+```{r}
+
+
+
+
+
 
 
 p <- plot_ly() |>
