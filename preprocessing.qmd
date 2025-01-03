@@ -7,7 +7,7 @@ editor: visual
 ```{r}
 setwd(".")
 
-list.of.packages <- c("sf", "plotly", "tidyverse", "rnaturalearth", "rnaturalearthhires", "readr", "crosstalk", "stringdist", "mapSpain", "viridis", "shiny", "ggbump")
+list.of.packages <- c("sf", "plotly", "tidyverse", "rnaturalearth", "rnaturalearthhires", "readr", "crosstalk", "stringdist", "mapSpain", "viridis", "shiny","forecast")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 lapply(list.of.packages, require, character.only=TRUE)
@@ -695,50 +695,182 @@ p
 ```
 
 
+```{r}
+ocup <- readxl::read_excel("data/eoh_ccaa.xlsx")
+ocup
+```
 
 
 ```{r}
-year <- rep(2019:2021, 4)
-position <- c(4, 2, 2, 3, 1, 4, 2, 3, 1, 1, 4, 3)
-player <- c("A", "A", "A",
-            "B", "E", "B", 
-            "C", "C", "C",
-            "D", "D", "D")
+ocup_nacional <- ocup |>
+                 filter(LUGAR_RESIDENCIA == "Total") |>
+                 select(AÑO, MES, CCAA, PERNOCTACIONES) |>
+                 group_by(AÑO, MES) |>
+                 summarise(pernoc=sum(PERNOCTACIONES, na.rm = TRUE), .groups = "drop")
 
-df <- data.frame(x = year,
-                 y = position,
-                 group = player)
+ocup_nacional
+```
+```{r}
+
+# Supongamos que tu dataset ya está cargado
+data <- ocup_nacional
+
+# Añade una columna de fecha (si no está incluida ya)
+data$Fecha <- as.Date(paste(data$AÑO, data$MES, "01", sep = "-"))
+
+# Crear el gráfico principal con las líneas de pernoctaciones
+fig <- plot_ly(data, x = ~Fecha, y = ~pernoc, type = 'scatter', mode = 'lines', name = "Pernoctaciones", showlegend=F)
+
+# Añadir las líneas verticales y trazas invisibles para la leyenda
+fig <- fig %>%
+  
+  # Línea sólida roja: Estado de alarma (14 de marzo de 2020)
+  add_trace(
+    x = c(as.Date("2020-03-14"), as.Date("2020-03-14")),
+    y = c(0, max(data$pernoc)),
+    type = "scatter",
+    mode = "lines",
+    line = list(color = "red", dash = "solid"),
+    name = "Mar 2020: Estado de alarma",
+    showlegend = T
+  ) %>%
+  # Línea discontinua azul: Fin del estado de alarma (21 de junio de 2020)
+  add_trace(
+    x = c(as.Date("2020-06-21"), as.Date("2020-06-21")),
+    y = c(0, max(data$pernoc)),
+    type = "scatter",
+    mode = "lines",
+    line = list(color = "red", dash = "dash"),
+    name = "Jun 2020: Fin del estado de alarma",
+    showlegend = T
+  ) %>%
+  # Línea guiones verde: Nuevo estado de alarma (25 de octubre de 2020)
+  add_trace(
+    x = c(as.Date("2020-10-25"), as.Date("2020-10-25")),
+    y = c(0, max(data$pernoc)),
+    type = "scatter",
+    mode = "lines",
+    line = list(color = "red", dash = "dot"),
+    name = "Oct 2020: Nuevo estado de alarma",
+    showlegend = T
+  ) %>%
+  # Línea guiones-puntos púrpura: Fin de la crisis sanitaria (5 de julio de 2023)
+  add_trace(
+    x = c(as.Date("2023-07-05"), as.Date("2023-07-05")),
+    y = c(0, max(data$pernoc)),
+    type = "scatter",
+    mode = "lines",
+    line = list(color = "red", dash = "dashdot"),
+    name = "Jul 2023: Fin de la crisis sanitaria",
+    showlegend = T
+  ) %>%
+  # Configurar el diseño del gráfico
+  layout(
+    title = "Evolución de la gestión de la crisis en España",
+    xaxis = list(title = ""),
+    yaxis = list(title = "Pernoctaciones",
+                 range=c(0, 120e6)),
+    legend = list(
+      x = 0.01, # Posición horizontal (0 es extremo izquierdo)
+      y = 0.99, # Posición vertical (1 es extremo superior)
+      bgcolor = "rgba(255,255,255,0.7)", # Fondo blanco semitransparente para la leyenda
+      bordercolor = "black",
+      borderwidth = 1,
+      title = list(text = NULL)
+    )
+  ) |>
+  rangeslider()
+
+# Mostrar el gráfico
+fig
+```
 
 
 
-p <- ggplot(rank_top_5, aes(x = Year, y = Position, color = Prov)) +
-  geom_bump(size = 1.5) +
-  geom_point(aes(text = hover_info), size = 6) +
-  geom_text(data = rank_top_5 %>% filter(Year == min(Year)),
-            aes(x = Year - 0.1, label = Prov),
-            size = 5, hjust = 1) +
-  geom_text(data = rank_top_5 %>% filter(Year == max(Year)),
-            aes(x = Year + 0.1, label = Prov),
-            size = 5, hjust = 0) +
-  scale_color_brewer(palette = "RdBu") +
-  theme_void() +
-  theme(legend.position = "none")
+```{r}
+data_filtered <- ocup_nacional[ocup_nacional$AÑO < 2020, ]
 
-p |> ggplotly(tooltip = "text") |>
-       layout(
-       title="Mapa",
-       xaxis=list(
-         showgrid=FALSE,
-         zeroline=FALSE,
-         showticklabels=FALSE
-       ),
-       yaxis=list(
-         showgrid=FALSE,
-         zeroline=FALSE,
-         showticklabels=FALSE
-       )
-      )
+ts_data <- ts(data_filtered$pernoc, start = c(1999, 1), frequency = 12)
+
+modelo <- auto.arima(ts_data)
+modelo
+```
+
+
+```{r}
+predicciones <- forecast(modelo, h = 42)
+predicciones
+```
+
+
+```{r}
+
+
+data1 <- data |> 
+        filter(Fecha >= "2019-1-1", Fecha <= "2023-6-1")
+
+pred <- data.frame(
+  fecha = seq(from = as.Date("2020-01-01"), by = "month", length.out = 42),
+  pernoc = predicciones$mean
+)
+
+inicio_covid <- as.Date("2020-03-01")
+fin_covid <- as.Date("2021-12-01")
+
+datos_covid <- datos_grafico[datos_grafico$fecha >= inicio_covid & datos_grafico$fecha <= fin_covid, ]
+
+fig <- plot_ly() %>%
+  add_lines(x = ~data1$Fecha, y = ~data1$pernoc, name = "Real", line = list(color = "blue")) %>%
+  add_lines(x = ~pred$fecha, y = ~pred$pernoc, name = "Predicho", line = list(color = "red")) %>%
+  add_ribbons(
+    x = ~pred$fecha,
+    ymin = ~pmin(data1$pernoc, pred$predicho),
+    ymax = ~pmax(data1$pernoc, pred$predicho),
+    fillcolor = "rgba(255, 0, 0, 0.2)", line = list(width = 0), name = "Pérdidas COVID"
+  ) %>%
+  layout(
+    title = "Predicción ARIMA vs Valores Reales",
+    xaxis = list(title = "Fecha"),
+    yaxis = list(title = "Pernoctaciones"),
+    legend = list(orientation = "h", y = -0.2)
+  )
+
+fig
 
 ```
 
+
+
+
+```{r}
+# Ajustar los datos reales para alinearlos con las fechas de predicción
+data1_filtrado <- data1 %>%
+  filter(Fecha %in% pred$fecha)  # Filtrar solo las fechas que coinciden con las predicciones
+
+# Unir las predicciones y los valores reales
+datos_combinados <- merge(pred, data1_filtrado, by.x = "fecha", by.y = "Fecha", all.x = TRUE)
+
+# Calcular ymin y ymax (área sombreada)
+datos_combinados$ymin <- pmin(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
+datos_combinados$ymax <- pmax(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
+
+# Visualización con plotly
+fig <- plot_ly() %>%
+  add_lines(x = ~data1$Fecha, y = ~data1$pernoc, name = "Real", line = list(color = "blue")) %>%
+  add_lines(x = ~pred$fecha, y = ~pred$pernoc, name = "Predicho", line = list(color = "red")) %>%
+  add_ribbons(
+    x = ~datos_combinados$fecha,
+    ymin = ~datos_combinados$ymin,
+    ymax = ~datos_combinados$ymax,
+    fillcolor = "rgba(255, 0, 0, 0.2)", line = list(width = 0), name = "Pérdidas COVID"
+  ) %>%
+  layout(
+    title = "Predicción ARIMA vs Valores Reales",
+    xaxis = list(title = "Fecha"),
+    yaxis = list(title = "Pernoctaciones"),
+    legend = list(orientation = "h", y = -0.2)
+  )
+
+fig
+```
 
