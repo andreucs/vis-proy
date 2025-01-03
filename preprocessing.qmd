@@ -532,6 +532,24 @@ redraw = FALSE
 ```
 
 
+```{r}
+source("server/data_transformations.R")
+```
+
+
+```{r}
+provincias <- c("Madrid", "Barcelona", "Girona")
+
+rank_5 <- turismo_receptor |>
+            get_ranking_provinces(provincias)
+  
+rank_6 <- turismo_receptor |>
+            get_tableau_ranking(rank_5)
+
+
+#rank_5 <- rank_5 |> get_bumpchart_ranking()
+rank_5
+```
 
 
 ```{r}
@@ -711,20 +729,14 @@ ocup_nacional <- ocup |>
 ocup_nacional
 ```
 ```{r}
-
-# Supongamos que tu dataset ya está cargado
 data <- ocup_nacional
 
-# Añade una columna de fecha (si no está incluida ya)
 data$Fecha <- as.Date(paste(data$AÑO, data$MES, "01", sep = "-"))
 
-# Crear el gráfico principal con las líneas de pernoctaciones
+
 fig <- plot_ly(data, x = ~Fecha, y = ~pernoc, type = 'scatter', mode = 'lines', name = "Pernoctaciones", showlegend=F)
 
-# Añadir las líneas verticales y trazas invisibles para la leyenda
 fig <- fig %>%
-  
-  # Línea sólida roja: Estado de alarma (14 de marzo de 2020)
   add_trace(
     x = c(as.Date("2020-03-14"), as.Date("2020-03-14")),
     y = c(0, max(data$pernoc)),
@@ -734,7 +746,6 @@ fig <- fig %>%
     name = "Mar 2020: Estado de alarma",
     showlegend = T
   ) %>%
-  # Línea discontinua azul: Fin del estado de alarma (21 de junio de 2020)
   add_trace(
     x = c(as.Date("2020-06-21"), as.Date("2020-06-21")),
     y = c(0, max(data$pernoc)),
@@ -744,7 +755,6 @@ fig <- fig %>%
     name = "Jun 2020: Fin del estado de alarma",
     showlegend = T
   ) %>%
-  # Línea guiones verde: Nuevo estado de alarma (25 de octubre de 2020)
   add_trace(
     x = c(as.Date("2020-10-25"), as.Date("2020-10-25")),
     y = c(0, max(data$pernoc)),
@@ -754,7 +764,7 @@ fig <- fig %>%
     name = "Oct 2020: Nuevo estado de alarma",
     showlegend = T
   ) %>%
-  # Línea guiones-puntos púrpura: Fin de la crisis sanitaria (5 de julio de 2023)
+
   add_trace(
     x = c(as.Date("2023-07-05"), as.Date("2023-07-05")),
     y = c(0, max(data$pernoc)),
@@ -764,16 +774,16 @@ fig <- fig %>%
     name = "Jul 2023: Fin de la crisis sanitaria",
     showlegend = T
   ) %>%
-  # Configurar el diseño del gráfico
+
   layout(
     title = "Evolución de la gestión de la crisis en España",
     xaxis = list(title = ""),
     yaxis = list(title = "Pernoctaciones",
                  range=c(0, 120e6)),
     legend = list(
-      x = 0.01, # Posición horizontal (0 es extremo izquierdo)
-      y = 0.99, # Posición vertical (1 es extremo superior)
-      bgcolor = "rgba(255,255,255,0.7)", # Fondo blanco semitransparente para la leyenda
+      x = 0.01,
+      y = 0.99,
+      bgcolor = "rgba(255,255,255,0.7)",
       bordercolor = "black",
       borderwidth = 1,
       title = list(text = NULL)
@@ -781,7 +791,7 @@ fig <- fig %>%
   ) |>
   rangeslider()
 
-# Mostrar el gráfico
+
 fig
 ```
 
@@ -792,8 +802,7 @@ data_filtered <- ocup_nacional[ocup_nacional$AÑO < 2020, ]
 
 ts_data <- ts(data_filtered$pernoc, start = c(1999, 1), frequency = 12)
 
-modelo <- auto.arima(ts_data)
-modelo
+modelo <- Arima(ts_data, order = c(1, 0, 2), seasonal = c(0, 1, 1), include.drift = TRUE)
 ```
 
 
@@ -843,18 +852,17 @@ fig
 
 
 ```{r}
-# Ajustar los datos reales para alinearlos con las fechas de predicción
-data1_filtrado <- data1 %>%
-  filter(Fecha %in% pred$fecha)  # Filtrar solo las fechas que coinciden con las predicciones
 
-# Unir las predicciones y los valores reales
+data1_filtrado <- data1 %>%
+  filter(Fecha %in% pred$fecha)
+
 datos_combinados <- merge(pred, data1_filtrado, by.x = "fecha", by.y = "Fecha", all.x = TRUE)
 
-# Calcular ymin y ymax (área sombreada)
+
 datos_combinados$ymin <- pmin(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
 datos_combinados$ymax <- pmax(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
 
-# Visualización con plotly
+
 fig <- plot_ly() %>%
   add_lines(x = ~data1$Fecha, y = ~data1$pernoc, name = "Real", line = list(color = "blue")) %>%
   add_lines(x = ~pred$fecha, y = ~pred$pernoc, name = "Predicho", line = list(color = "red")) %>%
