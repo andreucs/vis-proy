@@ -15,7 +15,7 @@ library(sf)
 library(mapSpain)
 library(bslib)
 library(bsicons)
-
+library(forecast)
 
 turismo_receptor <- read_delim(
   "data/turismo_receptor_provincia_pais.csv",
@@ -32,6 +32,51 @@ turismo_receptor <- read_delim(
     PERNOCTACIONES = col_double()
   )
 )
+turismo_receptor$MES_COD <- factor(turismo_receptor$MES, 
+                               levels = 1:12, 
+                               labels = c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
+                                          "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))
+
+ocup <- readxl::read_excel("data/eoh_ccaa.xlsx")
+
+ocup_nacional <- ocup |>
+                 filter(LUGAR_RESIDENCIA == "Total") |>
+                 select(AÑO, MES, CCAA, PERNOCTACIONES) |>
+                 group_by(AÑO, MES) |>
+                 summarise(pernoc=sum(PERNOCTACIONES, na.rm = TRUE), .groups = "drop")
+
+data <- ocup_nacional
+data$Fecha <- as.Date(paste(data$AÑO, data$MES, "01", sep = "-"))
+
+data_filtered <- ocup_nacional[ocup_nacional$AÑO < 2020, ]
+
+ts_data <- ts(data_filtered$pernoc, start = c(1999, 1), frequency = 12)
+
+modelo <- Arima(ts_data, order = c(1, 0, 2), seasonal = c(0, 1, 1), include.drift = TRUE)
+
+
+predicciones <- forecast(modelo, h = 42)
+
+data1 <- data |> 
+        filter(Fecha >= "2019-1-1", Fecha <= "2023-6-1")
+
+pred <- data.frame(
+  fecha = seq(from = as.Date("2020-01-01"), by = "month", length.out = 42),
+  pernoc = predicciones$mean
+)
+
+
+data1_filtrado <- data1 %>%
+  filter(Fecha %in% pred$fecha)
+
+datos_combinados <- merge(pred, data1_filtrado, by.x = "fecha", by.y = "Fecha", all.x = TRUE)
+
+
+datos_combinados$ymin <- pmin(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
+datos_combinados$ymax <- pmax(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
+
+## Bump
+
 
 
 hex_prov <- esp_get_hex_prov() |>
@@ -57,7 +102,9 @@ completo <- merge(tur_total_year, hex_prov, by = "PROVINCIA_DESTINO") |>
 ## sidebar {.sidebar}
 
 ```{r}
-selectInput("year", "Año", choices = unique(tur_total_year$AÑO))
+selectInput("year", 
+            "Año", 
+            choices = unique(tur_total_year$AÑO))
 ```
 
 -------------------------------
@@ -74,130 +121,182 @@ selectInput("year", "Año", choices = unique(tur_total_year$AÑO))
 
 ### firstRow {height=50%}
 
-#### hexMap {width=45%}
+
 
 ```{r}
 plotlyOutput("hexmap")
 ```
 
-#### kpiLayout {width=55%}
-
-##### kpiOnly {height=40%}
-
 ```{r}
-value_box(
-  title="Customer",
-  value="$5000"
-)
-```
-
-```{r}
-value_box(
-  title="Customer",
-  value="$5000"
-)
-```
-
-```{r}
-value_box(
-  title="Customer",
-  value="$5000"
-)
+#| content: card-sidebar
+#selectInput("var", 
+ #           "Variable", 
+  #          choices = c("TURISTAS", "ESTANCIA_MEDIA"),
+   #         selected = "ESTANCIA_MEDIA")
 ```
 
 
-##### kpicharts {height=60%}
-
-hello
-
 ```{r}
-plotlyOutput("barplot")
+plotlyOutput("violin_plot")
 ```
-
-
-
-
 
 
 ### secondRow {height=50%}
 
-#### {width=50%}
+#### {width=55%}
+
+
 
 ```{r}
 plotlyOutput("barplot")
 ```
 
-# Page 2
-
-## sidebar {.sidebar}
+# Page 2 
 
 
-## Dasboard Panel
 
-### Colum {height=20%}
+## row {height=45%}
 
 ```{r}
+#| content: card-sidebar
 
-value_box(
-  title="Customer",
-  value="$5000",
-  theme="primary",
-  showcase=bsicons::bs_icon("bank2")
-)
+#selectInput("year", "Año", choices = c("Si", "No"))
+
 ```
 
 ```{r}
-
-value_box(
-  title="Customer",
-  value="$5000",
-  theme="primary"
-)
-```
-
-```{r}
-
-value_box(
-  title="Customer",
-  value="$5000",
-  theme="primary"
-)
-```
-
-
-
-### Row {height=50%}
-
-
-```{r}
+#| title: "Hola"
+#| padding: 0px
 plot(iris)
 ```
 
+## tabs { .tabset }
 
+### Tab 1
 
-
-### Colum
+####
 
 ```{r}
-value_box(
-  title="Customer",
-  value="$5000"
+#| width: 50%
+#| padding: 0px
+
+plotlyOutput("linePlot")
+```
+
+###### 
+
+```{r}
+#| content: valuebox
+
+
+list(
+  title="",
+  color = "primary"
 )
 ```
+
+### Tab 2 
+
+```{r}
+#| width: 50%
+#| padding: 0px
+#| fig-cap: "Hola"
+
+
+plotlyOutput("arimaPlot")
+
+```
+
+#### 
+
+```{r}
+#| content: valuebox
+
+
+list(
+  title="pixa",
+  color = "primary",
+  value = 200
+
+)
+```
+
+```{r}
+#| content: valuebox
+
+list(
+  title="pixa", 
+  color = "primary",
+  value = 200
+
+)
+```
+
+
+# Page 3
+
+## sidebar {.sidebar}
+
+```{r}
+
+exclude_list <- c("Madrid", "Barcelona", "Málaga", "Illes Balears", "Las Palmas")
+
+
+filtered_choices <- setdiff(unique(turismo_receptor$PROVINCIA_DESTINO), exclude_list)
+
+
+selectInput("prov_bump", 
+            "Provincias", 
+            choices = filtered_choices,
+            multiple = T)
+
+selectInput("page3_year",
+             "Año",
+             choices=c(2019,2020,2021,2022,2023))
+
+
+
+```
+
+##
+
+```{r}
+plotlyOutput("bump_chart")
+```
+
+
+```{r}
+plotlyOutput("province_barplot")
+```
+
 
 ```{r}
 #| context: server
 
-
+source("server/data_transformations.R")
 source("server/filter_functions.R")
 source("server/hexmap_render.R")
 source("server/barplot_click_render.R")
+source("server/covid_events_render.R")
+source("server/pred_vs_real.R")
+source("server/render_violin_plot.R")
+source("server/render_bump_chart.R")
+source("server/render_barchart_contrib_selected.R")
+
 
 filtered_data <- get_filtered_data(input, completo)
 
-render_hexmap(output, input, filtered_data, hex_prov)
+render_hexmap(output, input, completo, hex_prov)
 
 render_barplot(output, input, turismo_receptor, hex_prov)
 
+covid_events_render(output, data)
 
+render_pred_vs_real(output, data1, pred, datos_combinados)
+
+render_violin_plot(output, input, turismo_receptor, hex_prov)
+
+render_bump_chart(output, input, get_ranking_provinces, create_inverted_ranking, turismo_receptor)
+
+render_barchart_contrib_selected(output, input, turismo_receptor)
 ```
