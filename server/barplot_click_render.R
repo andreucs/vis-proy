@@ -1,8 +1,34 @@
 render_barplot <- function(output, input, turismo_receptor, hex_prov) {
   output$barplot <- renderPlotly({
     clickData <- event_data("plotly_click", source = "hexmap_source")
+    
+    
     if (is.null(clickData)) {
-      return(plot_ly() |> layout(title = "Haz clic en una provincia para ver detalles"))
+     
+      total_data <- turismo_receptor |> 
+        filter(AÑO == input$year)
+      
+      top_countries <- total_data |> 
+        group_by(PAIS_ORIGEN) |> 
+        summarise(TURISTAS = sum(TURISTAS, na.rm = TRUE)) |> 
+        arrange(desc(TURISTAS)) |> 
+        slice_head(n = 5)
+      
+      return(
+        plot_ly(
+          data = top_countries,
+          x = ~TURISTAS,
+          y = ~reorder(PAIS_ORIGEN, TURISTAS),
+          type = "bar",
+          orientation = "h",
+          marker = list(color = "steelblue")
+        ) |>
+          layout(
+            title = paste("Top 5 Países de Origen - Total Año:", input$year),
+            xaxis = list(title = "Número de Turistas"),
+            yaxis = list(title = "")
+          )
+      )
     }
     
     clicked_x <- clickData$x
@@ -43,3 +69,4 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov) {
       )
   })
 }
+
