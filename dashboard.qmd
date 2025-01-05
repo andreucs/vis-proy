@@ -138,10 +138,10 @@ plotlyOutput("barplot")
 
 ```{r}
 #| content: card-sidebar
-#selectInput("var", 
- #           "Variable", 
-  #          choices = c("TURISTAS", "ESTANCIA_MEDIA"),
-   #         selected = "ESTANCIA_MEDIA")
+selectInput("var", 
+            "Variable", 
+            choices = c("TURISTAS", "ESTANCIA_MEDIA"),
+            selected = "ESTANCIA_MEDIA")
 ```
 
 

@@ -3,11 +3,10 @@ render_bump_chart <- function(output, input, get_ranking_provinces, create_inver
     exclude_list <- c("Madrid", "Barcelona", "Málaga", "Islas Baleares", "Las Palmas", "Illes Balears")
     combined_selection <- c(input$prov_bump, exclude_list)
     
-
-    
     data <- turismo_receptor |>
       get_ranking_provinces(combined_selection) |>
       create_inverted_ranking()
+    
     
     data_highlight <- highlight_key(data, key = ~Province)
     

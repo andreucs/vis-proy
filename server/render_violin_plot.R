@@ -10,11 +10,11 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
       
       fig <- total_data |> 
         plot_ly(
-          x = ~ESTANCIA_MEDIA,
-          y = ~MES_COD,
+          x = ~MES_COD,
+          y = ~ESTANCIA_MEDIA,
           split = ~MES_COD,
           type = 'violin',
-          orientation = "h",
+          orientation = "v",
           text = ~paste("Estancia Media: ", ESTANCIA_MEDIA, "<br>País de Origen: ", PAIS_ORIGEN),
           hoverinfo = "text",
           box = list(
@@ -53,33 +53,30 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
     if (length(selected_province) == 0) {
       return(plot_ly() |> layout(title = "No se encontró ninguna provincia"))
     }
-    #selected_var <- rlang::sym(input$var)
+    
+    
+    selected_var <- rlang::sym(input$var)
     
     
 
     province_data <- turismo_receptor |> 
       filter(AÑO == input$year, PROVINCIA_DESTINO == selected_province) |>
-      select(MES_COD, ESTANCIA_MEDIA, PAIS_ORIGEN)
+      select(MES_COD, !!selected_var, PAIS_ORIGEN)
     
     print(province_data)
     if (nrow(province_data) == 0) {
       return(plot_ly() |> layout(title = paste("No hay datos disponibles para la provincia:", selected_province)))
     }
     
-    mean_data <- province_data |> 
-      group_by(MES_COD) |> 
-      summarise(Media = mean(ESTANCIA_MEDIA, na.rm = TRUE))
-    
-    print(mean_data)
-
-    fig <- province_data |> 
-      plot_ly(
-        x = ~ESTANCIA_MEDIA,
-        y = ~MES_COD,
+ 
+    fig <-  plot_ly(
+        data = province_data,
+        x = ~MES_COD,
+        y = ~.data[[input$var]],
         split = ~MES_COD,
         type = 'violin',
-        orientation = "h",
-        text = ~paste(input$var, ": ", ESTANCIA_MEDIA, "<br>País de Origen: "),
+        orientation = "v",
+        text = ~paste(input$var, ": ", .data[[input$var]], "<br>País de Origen: ", PAIS_ORIGEN),
         hoverinfo = "text",
         box = list(
           visible = TRUE
@@ -88,7 +85,7 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
           visible = TRUE
         )
       )
-    
+  
 
     fig <- fig |> 
       layout(

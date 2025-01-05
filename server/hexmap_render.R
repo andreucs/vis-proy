@@ -1,15 +1,16 @@
 render_hexmap <- function(output, input,completo, hex_prov) {
   output$hexmap <- renderPlotly({
     plot_ly(source = "hexmap_source", data = completo) |>
-      filter(AÑO == input$year) |>  
+      filter(AÑO == input$year) |>
       add_sf(
         split = ~NULL,
         color = ~cut(m, 
                      breaks = c(0, 5e5, 1e6, 5e6, 10e6, Inf),
                      labels = c("0k-5k", "5k-1M", "1M-5M", "5M-10M", "10M+")),
-        colors = c("#FFEDA0", "#FEB24C", "#FD8D3C", "#FC4E2A", "#E31A1C"), # Colores específicos
+        colors = c("#FFEDA0", "#FEB24C", "#FD8D3C", "#FC4E2A", "#E31A1C"), # Colores específico
         hoveron = "fills",
-        hovertext = ~paste("Provincia:", PROVINCIA_DESTINO, "<br>Turistas:", format(m, big.mark = ",")),
+        text=~paste("Provincia:", PROVINCIA_DESTINO, "<br>Turistas:", format(m, big.mark = ",")),
+        hoverinfo = "text",
         showlegend = TRUE
       ) |>
       add_text(
@@ -17,6 +18,7 @@ render_hexmap <- function(output, input,completo, hex_prov) {
         x = ~X,
         y = ~Y,
         text = ~label,
+        hoverinfo="skip",
         textfont = list(size = 10, color = "black"),
         showlegend = FALSE
       ) |>
