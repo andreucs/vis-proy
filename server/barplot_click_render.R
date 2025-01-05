@@ -35,6 +35,13 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov) {
             xaxis = list(title = "Número de Turistas"),
             yaxis = list(title = "",
                          range=c(0, max_turistas))
+          ) |>
+          config(
+            modeBarButtonsToRemove = c(
+              "zoom2d", "pan2d", "select2d", "lasso2d", 
+              "zoomIn2d", "zoomOut2d", "autoScale2d", 
+              "hoverClosestCartesian", "hoverCompareCartesian"
+            )
           )
       )
     }
@@ -83,6 +90,13 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov) {
         xaxis = list(title = "Número de Turistas"),
         yaxis = list(title = "",
                      range=c(0, max_turistas))
+      ) |>
+      config(
+        modeBarButtonsToRemove = c(
+          "zoom2d", "pan2d", "select2d", "lasso2d", 
+          "zoomIn2d", "zoomOut2d", "autoScale2d", 
+          "hoverClosestCartesian", "hoverCompareCartesian"
+        )
       )
   })
 }

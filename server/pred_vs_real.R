@@ -14,6 +14,13 @@ render_pred_vs_real <- function(output, data1, pred, datos_combinados) {
         xaxis = list(title = "Fecha"),
         yaxis = list(title = "Pernoctaciones"),
         legend = list(orientation = "h", y = -0.2)
+      ) |>
+      config(
+        modeBarButtonsToRemove = c(
+          "zoom2d", "pan2d", "select2d", "lasso2d", 
+          "zoomIn2d", "zoomOut2d", "autoScale2d", 
+          "hoverClosestCartesian", "hoverCompareCartesian"
+        )
       )
   })
 }

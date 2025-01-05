@@ -39,6 +39,13 @@ render_hexmap <- function(output, input,completo, hex_prov) {
         ),
         margin = list(t = 30, r = 100) # Ajustar el margen superior para la leyenda
       ) |>
-      event_register("plotly_click")
+      event_register("plotly_click") |>
+      config(
+        modeBarButtonsToRemove = c(
+          "zoom2d", "pan2d", "select2d", "lasso2d", 
+          "zoomIn2d", "zoomOut2d", "autoScale2d", 
+          "hoverClosestCartesian", "hoverCompareCartesian"
+        )
+      )
   })
 }

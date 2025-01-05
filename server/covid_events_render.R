@@ -51,6 +51,13 @@ covid_events_render <- function(output, data) {
           title = list(text = NULL)
         )
       ) |>
-      rangeslider()
+      rangeslider() |>
+      config(
+        modeBarButtonsToRemove = c(
+          "zoom2d", "pan2d", "select2d", "lasso2d", 
+          "zoomIn2d", "zoomOut2d", "autoScale2d", 
+          "hoverClosestCartesian", "hoverCompareCartesian"
+        )
+      )
   })
 }

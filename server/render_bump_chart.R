@@ -72,7 +72,14 @@ render_bump_chart <- function(output, input, get_ranking_provinces, create_inver
       autosize = FALSE,
       width = 800,
       height = 400
-    ) |> hide_legend()
+    ) |> hide_legend() |>
+      config(
+        modeBarButtonsToRemove = c(
+          "zoom2d", "pan2d", "select2d", "lasso2d", 
+          "zoomIn2d", "zoomOut2d", "autoScale2d", 
+          "hoverClosestCartesian", "hoverCompareCartesian"
+        )
+      )
     
     
     p <- highlight(

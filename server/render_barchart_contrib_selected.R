@@ -31,6 +31,13 @@ render_barchart_contrib_selected <- function(output, input, turismo_receptor) {
         xaxis = list(title = "Porcentaje (%)"),
         yaxis = list(title = ""),
         showlegend = FALSE
+      ) |>
+      config(
+        modeBarButtonsToRemove = c(
+          "zoom2d", "pan2d", "select2d", "lasso2d", 
+          "zoomIn2d", "zoomOut2d", "autoScale2d", 
+          "hoverClosestCartesian", "hoverCompareCartesian"
+        )
       )
   })
 }

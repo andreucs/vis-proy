@@ -36,7 +36,14 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
                                   "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")),
             zeroline = FALSE
           )
-        ) |> hide_legend()
+        ) |> hide_legend() |>
+        config(
+          modeBarButtonsToRemove = c(
+            "zoom2d", "pan2d", "select2d", "lasso2d", 
+            "zoomIn2d", "zoomOut2d", "autoScale2d", 
+            "hoverClosestCartesian", "hoverCompareCartesian"
+          )
+        )
       
       return(fig)
     }
@@ -101,7 +108,14 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
             title = "Estancia Media",
             zeroline = FALSE
           )
-        ) |> hide_legend()
+        ) |> hide_legend() |>
+        config(
+          modeBarButtonsToRemove = c(
+            "zoom2d", "pan2d", "select2d", "lasso2d", 
+            "zoomIn2d", "zoomOut2d", "autoScale2d", 
+            "hoverClosestCartesian", "hoverCompareCartesian"
+          )
+        )
       
       
       return(fig)
@@ -139,6 +153,13 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
           yaxis = list(
             title = "Número de Turistas",
             range = c(0, max_sum_turistas*1.25))
+          ) |>
+          config(
+            modeBarButtonsToRemove = c(
+              "zoom2d", "pan2d", "select2d", "lasso2d", 
+              "zoomIn2d", "zoomOut2d", "autoScale2d", 
+              "hoverClosestCartesian", "hoverCompareCartesian"
+            )
           ) 
     }
     
