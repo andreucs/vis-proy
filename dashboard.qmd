@@ -127,6 +127,15 @@ selectInput("year",
 plotlyOutput("hexmap")
 ```
 
+
+```{r}
+plotlyOutput("barplot")
+```
+
+### secondRow {height=50%}
+
+#### plotContainer {width=55%}
+
 ```{r}
 #| content: card-sidebar
 #selectInput("var", 
@@ -141,19 +150,7 @@ plotlyOutput("violin_plot")
 ```
 
 
-### secondRow {height=50%}
-
-#### {width=55%}
-
-
-
-```{r}
-plotlyOutput("barplot")
-```
-
 # Page 2 
-
-
 
 ## row {height=45%}
 
@@ -174,7 +171,7 @@ plot(iris)
 
 ### Tab 1
 
-####
+#### tab1container
 
 ```{r}
 #| width: 50%
@@ -183,15 +180,53 @@ plot(iris)
 plotlyOutput("linePlot")
 ```
 
-###### 
+###### kpis1container
 
 ```{r}
 #| content: valuebox
 
 
 list(
-  title="",
-  color = "primary"
+  title="Estado de alarma",
+  color = "primary",
+  value = "Marzo 2020"
+
+)
+```
+
+```{r}
+#| content: valuebox
+
+
+list(
+  title="Fin del estado de alarma",
+  color = "primary",
+  value = "Junio 2020"
+
+)
+```
+
+```{r}
+#| content: valuebox
+
+
+list(
+  title="Nuevo estado de alarma",
+  color = "primary",
+  value = "Octubre 2020"
+
+)
+```
+
+```{r}
+#| content: valuebox
+
+
+list(
+  title="Fin de la crisis sanitaria",
+  color = "primary",
+  value = "Julio 2023"
+
 )
 ```
 
@@ -214,9 +249,9 @@ plotlyOutput("arimaPlot")
 
 
 list(
-  title="pixa",
+  title = "Pernoctaciones menos en 2020 vs predicción",
   color = "primary",
-  value = 200
+  value = "61 M"
 
 )
 ```
@@ -225,9 +260,9 @@ list(
 #| content: valuebox
 
 list(
-  title="pixa", 
+  title="Con peores valores de los predichos", 
   color = "primary",
-  value = 200
+  value = "3 años"
 
 )
 ```
