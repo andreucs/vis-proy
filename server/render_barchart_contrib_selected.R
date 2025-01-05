@@ -9,11 +9,12 @@ render_barchart_contrib_selected <- function(output, input, turismo_receptor) {
     all_selected_provinces <- c(base_provinces, selected_provinces)
     
     data <- turismo_receptor |>
-            group_by(AÑO, PROVINCIA_DESTINO) |>
-            summarise(TURISTAS = sum(TURISTAS, na.rm = TRUE)) |>
+            filter(PROVINCIA_DESTINO != "Total Nacional") |>
             filter(AÑO == input$page3_year) |>
-            filter(PROVINCIA_DESTINO %in% all_selected_provinces) |>
-            mutate(Percentage = 100 * TURISTAS / sum(TURISTAS))
+            group_by(PROVINCIA_DESTINO) |>
+            summarise(TURISTAS = sum(TURISTAS, na.rm = TRUE)) |>
+            mutate(Percentage = 100 * TURISTAS / sum(TURISTAS)) |>
+            filter(PROVINCIA_DESTINO %in% all_selected_provinces)
 
     
 

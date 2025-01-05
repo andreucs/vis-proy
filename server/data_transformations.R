@@ -10,7 +10,7 @@ get_ranking_provinces <- function(df_prov, province_list, min_year = 2019, max_y
     df_prov <- as.data.table(df_prov)
 
     all_ranks <- lapply(min_year:max_year, function(year) {
-        result <- df_prov[AÑO == year & PROVINCIA_DESTINO %in% province_list & PROVINCIA_DESTINO != "Total",
+        result <- df_prov[AÑO == year & PROVINCIA_DESTINO %in% province_list & PROVINCIA_DESTINO != "Total Nacional",
             .(TURISTAS = sum(TURISTAS)),
             by = PROVINCIA_DESTINO
         ][order(-TURISTAS), PROVINCIA_DESTINO]
