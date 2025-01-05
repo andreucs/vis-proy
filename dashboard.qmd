@@ -18,7 +18,7 @@ library(bsicons)
 library(forecast)
 
 turismo_receptor <- read_delim(
-  "data/turismo_receptor_provincia_pais copy.csv",
+  "data/turismo_receptor_provincia_pais.csv",
   delim = ";",
   locale = locale(decimal_mark = ",", encoding = "ISO-8859-1"),
   col_types = cols(

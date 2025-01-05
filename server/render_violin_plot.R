@@ -92,13 +92,13 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
       fig <- fig |> 
         layout(
           xaxis = list(
-            title = "Estancia Media"
-          ),
-          yaxis = list(
             title = "Mes",
             categoryorder = "array",
             categoryarray = rev(c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
-                                  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")),
+                                  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))
+          ),
+          yaxis = list(
+            title = "Estancia Media",
             zeroline = FALSE
           )
         ) |> hide_legend()
@@ -108,22 +108,38 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
     }
     
     if (input$var == "TURISTAS") {
-        province_data |>
+      
+        d <- province_data |>
           group_by(MES_COD) |>
-          summarise(vis = sum(TURISTAS), na.rm=TRUE) |>
+          summarise(vis = sum(TURISTAS), na.rm=TRUE)
         
+        max_sum_turistas <- d |>
+          arrange(desc(vis)) |>
+          slice(1) |>
+          pull(vis)
+        
+        d |>
         plot_ly() |>
         add_lines(
           x=~MES_COD,
           y=~vis
-
         ) |>
         add_markers(
           x=~MES_COD,
-          y=~vis
-        )
-      
-      
+          y=~vis,
+          text=~paste("Número de Turistas: ", vis),
+          hoverinfo = "text",
+          color = I("steelblue")
+        ) |> hide_legend() |>
+        layout(
+          title = paste("Número de Turistas en", selected_province),
+          xaxis = list(
+            title = "Mes"
+          ),
+          yaxis = list(
+            title = "Número de Turistas",
+            range = c(0, max_sum_turistas*1.25))
+          ) 
     }
     
   })
