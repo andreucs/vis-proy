@@ -17,10 +17,10 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov) {
       return(
         plot_ly(
           data = top_countries,
-          x = ~TURISTAS,
-          y = ~reorder(PAIS_ORIGEN, TURISTAS),
+          y = ~TURISTAS,
+          x = ~reorder(PAIS_ORIGEN, TURISTAS),
           type = "bar",
-          orientation = "h",
+          orientation = "v",
           marker = list(color = "steelblue")
         ) |>
           layout(
@@ -54,18 +54,26 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov) {
       arrange(desc(TURISTAS)) |> 
       slice_head(n = 5)
     
+    max_turistas <- max(top_countries$TURISTAS)*1.5
+    
+    
     plot_ly(
       data = top_countries,
-      x = ~TURISTAS,
-      y = ~reorder(PAIS_ORIGEN, TURISTAS),
+      y = ~TURISTAS,
+      x = ~reorder(PAIS_ORIGEN, -TURISTAS),
       type = "bar",
-      orientation = "h",
-      marker = list(color = "steelblue")
+      orientation = "v"
+    ) |>
+    add_text(
+      text=~scales::comma(TURISTAS),
+      y = ~TURISTAS,
+      textposition="top middle"
     ) |>
       layout(
         title = paste("Top 5 Países de Origen - Provincia:", selected_province),
         xaxis = list(title = "Número de Turistas"),
-        yaxis = list(title = "")
+        yaxis = list(title = "",
+                     range=c(0, max_turistas))
       )
   })
 }

@@ -17,6 +17,7 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
           orientation = "v",
           text = ~paste("Estancia Media: ", ESTANCIA_MEDIA, "<br>País de Origen: ", PAIS_ORIGEN),
           hoverinfo = "text",
+          points = F,
           box = list(
             visible = TRUE
           ),
@@ -68,40 +69,62 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
       return(plot_ly() |> layout(title = paste("No hay datos disponibles para la provincia:", selected_province)))
     }
     
- 
-    fig <-  plot_ly(
-        data = province_data,
-        x = ~MES_COD,
-        y = ~.data[[input$var]],
-        split = ~MES_COD,
-        type = 'violin',
-        orientation = "v",
-        text = ~paste(input$var, ": ", .data[[input$var]], "<br>País de Origen: ", PAIS_ORIGEN),
-        hoverinfo = "text",
-        box = list(
-          visible = TRUE
-        ),
-        meanline = list(
-          visible = TRUE
+    if (input$var == "ESTANCIA_MEDIA") {
+      fig <-  plot_ly() |>
+        add_trace(
+          data = province_data,
+          x = ~MES_COD,
+          y = ~.data[[input$var]],
+          split = ~MES_COD,
+          type = 'violin',
+          orientation = "v",
+          text = ~paste(input$var, ": ", .data[[input$var]], "<br>País de Origen: ", PAIS_ORIGEN),
+          hoverinfo = "text",
+          box = list(
+            visible = TRUE
+          ),
+          meanline = list(
+            visible = TRUE
+          )
         )
-      )
-  
-
-    fig <- fig |> 
-      layout(
-        xaxis = list(
-          title = "Estancia Media"
-        ),
-        yaxis = list(
-          title = "Mes",
-          categoryorder = "array",
-          categoryarray = rev(c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
-                                "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")),
-          zeroline = FALSE
-        )
-      ) |> hide_legend()
+      
+      
+      fig <- fig |> 
+        layout(
+          xaxis = list(
+            title = "Estancia Media"
+          ),
+          yaxis = list(
+            title = "Mes",
+            categoryorder = "array",
+            categoryarray = rev(c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
+                                  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")),
+            zeroline = FALSE
+          )
+        ) |> hide_legend()
+      
+      
+      return(fig)
+    }
     
+    if (input$var == "TURISTAS") {
+        province_data |>
+          group_by(MES_COD) |>
+          summarise(vis = sum(TURISTAS), na.rm=TRUE) |>
+        
+        plot_ly() |>
+        add_lines(
+          x=~MES_COD,
+          y=~vis
 
-    fig
+        ) |>
+        add_markers(
+          x=~MES_COD,
+          y=~vis
+        )
+      
+      
+    }
+    
   })
 }

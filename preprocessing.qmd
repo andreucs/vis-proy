@@ -15,7 +15,7 @@ lapply(list.of.packages, require, character.only=TRUE)
 
 ```{r}
 turismo_receptor <- read_delim(
-  "data/turismo_receptor_provincia_pais.csv",
+  "data/turismo_receptor_provincia_pais copy.csv",
   delim = ";",
   locale = locale(decimal_mark = ",", encoding = "ISO-8859-1"),
   col_types = cols(
@@ -28,7 +28,8 @@ turismo_receptor <- read_delim(
     PAIS_ORIGEN = col_character(),
     PERNOCTACIONES = col_double()
   )
-)
+)|>
+  filter(!grepl("Total", PROVINCIA_DESTINO, ignore.case = TRUE))
 ```
 
 ```{r}
@@ -148,7 +149,6 @@ bscols(
 
 ## Gráficos
 
-
 ```{r}
 turismo_receptor$MES_COD <- factor(turismo_receptor$MES, 
                                levels = 1:12, 
@@ -156,7 +156,6 @@ turismo_receptor$MES_COD <- factor(turismo_receptor$MES,
                                           "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))
 
 ```
-
 
 ```{r}
 
@@ -195,9 +194,6 @@ fig <- fig %>%
 fig
 
 ```
-
-
-
 
 ```{r}
 
@@ -272,8 +268,6 @@ plot_ly(source = "hexmap_source", data = completo) |>
     margin = list(t = 80) # Ajustar el margen superior para la leyenda
   )
 ```
-
-
 
 ```{r}
 top5 <- df |> 
@@ -350,8 +344,6 @@ grafico <- grafico |>
 grafico
 ```
 
-
-
 Con nuestros datos
 
 ```{r}
@@ -403,13 +395,6 @@ p <- completo
 
 p
 ```
-
-
-
-
-
-
-
 
 ```{r}
 ocup <- read_csv("data/ocupacion.csv")
@@ -479,14 +464,47 @@ redraw = FALSE
 
 ```
 
+```{r}
+
+o <- ocup |> mutate(date = AÑO + (MES - 1) / 12) |>
+        filter(LUGAR_RESIDENCIA != "Total")|>
+        filter(AÑO > 2010)
+       # filter(PROVINCIA %in% c("Albacete", "Alicante", "Almería")) |>
+  
+p1 <- o |>
+  filter(LUGAR_RESIDENCIA == "Residentes en España") |>
+  plot_ly(x = ~PERSONAL_EMPLEADO, y = ~GRADO_OCUPA_PLAZAS, size = ~VIAJEROS) |>
+ add_markers(frame = ~date, ids = ~PROVINCIA) |>
+  layout(
+    xaxis=list(
+      range=c(0, 1e5),
+      title="Hola"
+    )
+  )
+
+p2 <- o |>
+  filter(LUGAR_RESIDENCIA == "Residentes en el Extranjero") |>
+  plot_ly(x = ~PERSONAL_EMPLEADO, y = ~GRADO_OCUPA_PLAZAS, size = ~VIAJEROS)|>
+  add_markers(frame = ~date, ids = ~PROVINCIA, text = ~PROVINCIA, hoverinfo="text") |>
+  layout(
+    xaxis=list(
+      range=c(0, 1e5)
+    )
+  )
+  
+subplot(p1,p2, shareY = T, titleX = T) |>
+animation_opts(500, easing = "linear", redraw =T) %>%
+animation_button( x = 1, xanchor = "right", y = 0, yanchor = "bottom") %>%
+animation_slider(currentvalue = list(prefix = "YEAR ", font = list(color="red")))
+```
 
 ```{r}
 source("server/data_transformations.R")
 ```
+
 ```{r}
 source("server/data_transformations.R")
 ```
-
 
 ```{r}
 provincias <- c("Madrid", "Barcelona", "Girona")
@@ -499,15 +517,9 @@ rank <- turismo_receptor |>
 
 ```
 
-
-
 ```{r}
 data <- rank
 ```
-
-
-
-
 
 ```{r}
 
@@ -590,19 +602,14 @@ p <- highlight(
 p
 ```
 
-
-
 ```{r}
 
 ```
-
-
 
 ```{r}
 ocup <- readxl::read_excel("data/eoh_ccaa.xlsx")
 ocup
 ```
-
 
 ```{r}
 ocup_nacional <- ocup |>
@@ -681,8 +688,6 @@ fig <- fig %>%
 fig
 ```
 
-
-
 ```{r}
 data_filtered <- ocup_nacional[ocup_nacional$AÑO < 2020, ]
 
@@ -691,12 +696,10 @@ ts_data <- ts(data_filtered$pernoc, start = c(1999, 1), frequency = 12)
 modelo <- Arima(ts_data, order = c(1, 0, 2), seasonal = c(0, 1, 1), include.drift = TRUE)
 ```
 
-
 ```{r}
 predicciones <- forecast(modelo, h = 42)
 predicciones
 ```
-
 
 ```{r}
 
@@ -734,9 +737,6 @@ fig
 
 ```
 
-
-
-
 ```{r}
 
 data1_filtrado <- data1 %>%
@@ -767,10 +767,6 @@ fig <- plot_ly() %>%
 
 fig
 ```
-
-
-
-
 
 ## Pruebas
 
@@ -819,4 +815,3 @@ p2 <- mtcars |> plot_ly(x=~mpg)
 
 p1
 ```
-

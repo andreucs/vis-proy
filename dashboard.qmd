@@ -1,7 +1,7 @@
 ---
 title: "My Dashboard"
 format: dashboard
-theme: minty
+theme: flatly
 server: shiny
 ---
 
@@ -18,7 +18,7 @@ library(bsicons)
 library(forecast)
 
 turismo_receptor <- read_delim(
-  "data/turismo_receptor_provincia_pais.csv",
+  "data/turismo_receptor_provincia_pais copy.csv",
   delim = ";",
   locale = locale(decimal_mark = ",", encoding = "ISO-8859-1"),
   col_types = cols(
@@ -31,7 +31,14 @@ turismo_receptor <- read_delim(
     PAIS_ORIGEN = col_character(),
     PERNOCTACIONES = col_double()
   )
-)
+) |>
+  filter(!grepl("Total", PROVINCIA_DESTINO, ignore.case = TRUE)) |>
+  filter(!grepl("Total", PAIS_ORIGEN, ignore.case = TRUE))
+  
+  
+turismo_receptor$PAIS_ORIGEN <- gsub("^Estados Unidos de América", "EE.UU", turismo_receptor$PAIS_ORIGEN)
+
+
 turismo_receptor$MES_COD <- factor(turismo_receptor$MES, 
                                levels = 1:12, 
                                labels = c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
@@ -78,6 +85,7 @@ datos_combinados$ymax <- pmax(datos_combinados$pernoc.x, datos_combinados$pernoc
 ## Bump
 
 
+ocup1 <- read_csv("data/ocupacion.csv")
 
 hex_prov <- esp_get_hex_prov() |>
   rename(PROVINCIA_DESTINO = ine.prov.name) |>
@@ -152,7 +160,7 @@ plotlyOutput("violin_plot")
 
 # Page 2 
 
-## row {height=45%}
+## row {height=60%}
 
 ```{r}
 #| content: card-sidebar
@@ -162,16 +170,14 @@ plotlyOutput("violin_plot")
 ```
 
 ```{r}
-#| title: "Hola"
-#| padding: 0px
+plotlyOutput("animated")
+```
+
+```{r}
 plot(iris)
 ```
 
-## tabs { .tabset }
-
-### Tab 1
-
-#### tab1container
+## Row {height=40%}
 
 ```{r}
 #| width: 50%
@@ -180,91 +186,13 @@ plot(iris)
 plotlyOutput("linePlot")
 ```
 
-###### kpis1container
+
+
+
 
 ```{r}
-#| content: valuebox
-
-
-list(
-  title="Estado de alarma",
-  color = "primary",
-  value = "Marzo 2020"
-
-)
-```
-
-```{r}
-#| content: valuebox
-
-
-list(
-  title="Fin del estado de alarma",
-  color = "primary",
-  value = "Junio 2020"
-
-)
-```
-
-```{r}
-#| content: valuebox
-
-
-list(
-  title="Nuevo estado de alarma",
-  color = "primary",
-  value = "Octubre 2020"
-
-)
-```
-
-```{r}
-#| content: valuebox
-
-
-list(
-  title="Fin de la crisis sanitaria",
-  color = "primary",
-  value = "Julio 2023"
-
-)
-```
-
-### Tab 2 
-
-```{r}
-#| width: 50%
-#| padding: 0px
-#| fig-cap: "Hola"
-
-
 plotlyOutput("arimaPlot")
 
-```
-
-#### 
-
-```{r}
-#| content: valuebox
-
-
-list(
-  title = "Pernoctaciones menos en 2020 vs predicción",
-  color = "primary",
-  value = "61 M"
-
-)
-```
-
-```{r}
-#| content: valuebox
-
-list(
-  title="Con peores valores de los predichos", 
-  color = "primary",
-  value = "3 años"
-
-)
 ```
 
 
@@ -317,7 +245,7 @@ source("server/pred_vs_real.R")
 source("server/render_violin_plot.R")
 source("server/render_bump_chart.R")
 source("server/render_barchart_contrib_selected.R")
-
+source("server/render_animated_bubble.R")
 
 filtered_data <- get_filtered_data(input, completo)
 
@@ -334,4 +262,6 @@ render_violin_plot(output, input, turismo_receptor, hex_prov)
 render_bump_chart(output, input, get_ranking_provinces, create_inverted_ranking, turismo_receptor)
 
 render_barchart_contrib_selected(output, input, turismo_receptor)
+
+render_animated_bubble(output, input, ocup1)
 ```
