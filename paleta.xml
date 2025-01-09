@@ -1,0 +1,23 @@
+<color-palette name='Palette_sequential1' type = 'ordered-sequential'>
+    <color>#203F70</color>
+    <color>#1E4D99</color>
+    <color>#6991D0</color>
+    <color>#8CB5E1</color>
+    <color>#C9DCF1</color>
+
+<!-- Paleta de color JazzCup ft. DarkMint -->
+<!-- JazzCup -->
+    <color>#71e0e2</color>
+    <color>#00b3a9</color>
+    <color>#417dbf</color>
+    <color>#88009d</color>
+    <color>#490084</color>
+<!-- DarkMint -->
+    <color>#c6ffcf</color>
+    <color>#98e2c3</color>
+    <color>#6ac2b0</color>
+    <color>#449f9f</color>
+    <color>#2d7d8c</color>
+    <color>#1a5c73</color>
+    <color>#103c5c</color>
+</color-palette>
