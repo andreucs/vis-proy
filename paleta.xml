@@ -6,13 +6,6 @@
     <color>#C9DCF1</color>
 
 <!-- Paleta de color JazzCup ft. DarkMint -->
-<!-- JazzCup -->
-    <color>#71e0e2</color>
-    <color>#00b3a9</color>
-    <color>#417dbf</color>
-    <color>#88009d</color>
-    <color>#490084</color>
-<!-- DarkMint -->
     <color>#c6ffcf</color>
     <color>#98e2c3</color>
     <color>#6ac2b0</color>
@@ -20,4 +13,6 @@
     <color>#2d7d8c</color>
     <color>#1a5c73</color>
     <color>#103c5c</color>
+    <color>#490084</color>
+    <color>#88009d</color>
 </color-palette>
