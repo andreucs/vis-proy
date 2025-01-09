@@ -33,10 +33,12 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov) {
             hoverinfo = "none"
           ) |>
           layout(
-            title = paste("Top 5 Países de Origen - Total Año:", input$year),
-            xaxis = list(title = "País de Origen"),
+            title = paste("Top 5 Países que más viajan a España en", input$year),
+            xaxis = list(title = "", showgrid=FALSE),
             yaxis = list(title = "Número de Turistas",
-                         range=c(0, max_turistas))
+                         range=c(0, max_turistas),
+                         showgrid=FALSE,
+                         zeroline=FALSE)
           ) |>
           config(
             modeBarButtonsToRemove = c(
@@ -55,7 +57,14 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov) {
       pull(PROVINCIA_DESTINO)
     
     if (length(selected_province) == 0) {
-      return(plot_ly() |> layout(title = "No se encontró ninguna provincia"))
+      return(plot_ly() |> 
+               layout(title = "Haz click sobre el texto correspondiente a cada provincia",
+                      xaxis= list(showgrid=FALSE,
+                                  zeroline=FALSE,
+                                  showticklabels=FALSE),
+                      yaxis=list(showgrid=FALSE,
+                                 zeroline=FALSE,
+                                 showticklabels=FALSE)))
     }
     
     province_data <- turismo_receptor |> 
@@ -90,10 +99,12 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov) {
       hoverinfo = "none"
     ) |>
       layout(
-        title = paste("Top 5 Países de Origen - Provincia:", selected_province),
-        xaxis = list(title = "País de Origen"),
+        title = paste("Top 5 Países que más viajan a", selected_province, "en", input$year),
+        xaxis = list(title = "", showgrid=FALSE),
         yaxis = list(title = "Número de Turistas",
-                     range=c(0, max_turistas))
+                     range=c(0, max_turistas), showgrid=FALSE,
+                     zeroline=FALSE)
+        
       ) |>
       config(
         modeBarButtonsToRemove = c(
