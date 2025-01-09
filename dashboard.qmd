@@ -169,32 +169,34 @@ plotlyOutput("violin_plot")
 
 ```
 
+
+### containerAnimated {width="60%"}
 ```{r}
 plotlyOutput("animated")
 ```
 
+
+### containerLoli {width="40%"}
 ```{r}
 plot(iris)
 ```
 
 ## Row {height=40%}
 
-```{r}
-#| width: 50%
-#| padding: 0px
 
-plotlyOutput("linePlot")
-```
-
-
-
-
+### containerArima {width="45%"}
 
 ```{r}
 plotlyOutput("arimaPlot")
 
 ```
 
+### containerBarras {width="55%"}
+```{r}
+#| padding: 0px
+
+plotlyOutput("linePlot")
+```
 
 # Page 3
 

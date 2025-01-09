@@ -22,18 +22,20 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov) {
           y = ~TURISTAS,
           x = ~reorder(PAIS_ORIGEN, -TURISTAS),
           type = "bar",
-          orientation = "v"
-        ) |>
+          orientation = "v",
+          hoverinfo = "x+y"
+          ) |>
           add_text(
             text=~scales::comma(TURISTAS),
             y = ~TURISTAS,
             textposition="top middle",
-            showlegend = FALSE
+            showlegend = FALSE,
+            hoverinfo = "none"
           ) |>
           layout(
             title = paste("Top 5 Países de Origen - Total Año:", input$year),
-            xaxis = list(title = "Número de Turistas"),
-            yaxis = list(title = "",
+            xaxis = list(title = "País de Origen"),
+            yaxis = list(title = "Número de Turistas",
                          range=c(0, max_turistas))
           ) |>
           config(
@@ -77,18 +79,20 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov) {
       y = ~TURISTAS,
       x = ~reorder(PAIS_ORIGEN, -TURISTAS),
       type = "bar",
-      orientation = "v"
+      orientation = "v",
+      hoverinfo = "x+y"
     ) |>
     add_text(
       text=~scales::comma(TURISTAS),
       y = ~TURISTAS,
       textposition="top middle",
-      showlegend = FALSE
+      showlegend = FALSE,
+      hoverinfo = "none"
     ) |>
       layout(
         title = paste("Top 5 Países de Origen - Provincia:", selected_province),
-        xaxis = list(title = "Número de Turistas"),
-        yaxis = list(title = "",
+        xaxis = list(title = "País de Origen"),
+        yaxis = list(title = "Número de Turistas",
                      range=c(0, max_turistas))
       ) |>
       config(
