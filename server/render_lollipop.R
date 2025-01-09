@@ -1,4 +1,4 @@
-render_lollipop <- function(output, input, ocup1, ccaa) {
+render_lollipop <- function(output, input, ocup1, ccaa, color_residentes = "#2d7d8c", color_extranjeros = "#88009d") {
   
   output$lollipop <- renderPlotly({
     ccaa$Comunidad_autonoma <- gsub("^Región de", "", ccaa$Comunidad_autonoma)
@@ -29,12 +29,13 @@ render_lollipop <- function(output, input, ocup1, ccaa) {
     
     fig <- d |>
       plot_ly() |>
-      add_segments(x = ~mean_residentes, xend = ~mean_extranjeros, y = ~Comunidad_autonoma, yend = ~Comunidad_autonoma, showlegend = FALSE) |>
-      add_markers(x = ~mean_residentes, y = ~Comunidad_autonoma, name = "Residentes", color = I("pink")) |>
-      add_markers(x = ~mean_extranjeros, y = ~Comunidad_autonoma, name = "Extranjeros", color = I("blue")) |>
+      add_segments(x = ~mean_residentes, xend = ~mean_extranjeros, y = ~Comunidad_autonoma, yend = ~Comunidad_autonoma, showlegend = FALSE, color=I("#232323")) |>
+      add_markers(x = ~mean_residentes, y = ~Comunidad_autonoma, name = "Residentes", color = I(color_residentes)) |>
+      add_markers(x = ~mean_extranjeros, y = ~Comunidad_autonoma, name = "Extranjeros", color = I(color_extranjeros)) |>
       layout(
-        title = "Gender earnings disparity",
-        xaxis = list(title = "Annual Salary (in thousands)"),
+        title = "Promedio de viajeros por comunidad autónoma",
+        xaxis = list(title = "Promedio de viajeros"),
+        yaxis = list(title = ""),
         margin = list(l = 65)
       ) |>
       config(
