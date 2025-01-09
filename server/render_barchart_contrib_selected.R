@@ -27,8 +27,12 @@ render_barchart_contrib_selected <- function(output, input, turismo_receptor) {
       marker = list(color = c("steelblue", "grey"))
     ) |> 
       layout(
-        title = paste("Distribución de Turistas por Categoría - Año:", input$page3_year),
-        xaxis = list(title = "Porcentaje (%)"),
+        title = list(
+          text = paste("% Turistas en cada Provincia respecto la total en", input$page3_year),
+          x=0),
+        xaxis = list(title = "Porcentaje (%)",
+                     zeroline=FALSE,
+                     showgrid=FALSE),
         yaxis = list(title = ""),
         showlegend = FALSE
       ) |>

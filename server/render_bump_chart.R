@@ -54,7 +54,9 @@ render_bump_chart <- function(output, input, get_ranking_provinces, create_inver
     
     p <- layout(
       p,
-      title = "Chupapinga",
+      title = list(
+        text="Ranking de Provincias por número de turístas",
+        x=0),
       xaxis = list(
         title = "",
         showgrid = FALSE,
@@ -87,7 +89,7 @@ render_bump_chart <- function(output, input, get_ranking_provinces, create_inver
       on = "plotly_click",
       off = "plotly_doubleclick",
       #selectize = T, SHIFT+click emula la accion
-      dynamic = T
+      dynamic = F
     )
     
     
