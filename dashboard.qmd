@@ -128,6 +128,11 @@ selectInput("year",
 | **Laiqian Ji**              |
 | **Ernesto Martínez Gómez**  |            
 
+::: {.callout-note}
+## Fuente de Datos
+[Segittur API](https://www.dataestur.es/apidata/)
+:::
+  
 ## dasboardPanel
 
 ### firstRow {height=50%}
@@ -221,9 +226,6 @@ selectInput("prov_bump",
 selectInput("page3_year",
              "Año",
              choices=c(2019,2020,2021,2022,2023))
-
-
-
 ```
 
 ##
