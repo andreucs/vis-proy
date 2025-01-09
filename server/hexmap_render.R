@@ -24,20 +24,20 @@ render_hexmap <- function(output, input,completo, hex_prov) {
       ) |>
       layout(
         title = list(
-          text = paste("Mapa Hexagonal de España - Año", input$year),
+          text = paste("Turistas por provincia en", input$year),
           xanchor = "center",
           font = list(size = 20)
         ),
         
         hovermode = "closest",
         legend = list(
-          orientation = "v",        # Leyenda en orientación vertical
-          xanchor = "left",       # Centrar la leyenda
-          x = 1.1,                  # Posición horizontal
+          orientation = "v",
+          xanchor = "left",
+          x = 1.1,
           y = 0.5,
           font = list(size = 10)
         ),
-        margin = list(t = 30, r = 100) # Ajustar el margen superior para la leyenda
+        margin = list(t = 30, r = 100)
       ) |>
       event_register("plotly_click") |>
       config(
