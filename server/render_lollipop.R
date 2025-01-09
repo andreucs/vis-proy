@@ -33,10 +33,24 @@ render_lollipop <- function(output, input, ocup1, ccaa, color_residentes = "#2d7
       add_markers(x = ~mean_residentes, y = ~Comunidad_autonoma, name = "Residentes", color = I(color_residentes)) |>
       add_markers(x = ~mean_extranjeros, y = ~Comunidad_autonoma, name = "Extranjeros", color = I(color_extranjeros)) |>
       layout(
-        title = "Promedio de viajeros por comunidad autónoma",
-        xaxis = list(title = "Promedio de viajeros"),
-        yaxis = list(title = ""),
-        margin = list(l = 65)
+        title = list(
+              text="Promedio de viajeros por comunidad autónoma",
+              x=0),
+        xaxis = list(title = "Promedio de viajeros",
+                     zeroline=F,
+                     showgrid=F),
+        yaxis = list(title = "",
+                     zeroline=F),
+        margin = list(l = 65),
+        legend = list(
+          x = 1,                
+          y = 0.95,                 
+          xanchor = "right",     
+          yanchor = "top",
+          bgcolor = "rgba(255,255,255,0.7)",
+          bordercolor = "black",
+          borderwidth = 1
+        )
       ) |>
       config(
         modeBarButtonsToRemove = c(

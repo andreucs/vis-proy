@@ -21,7 +21,11 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
       layout(
         xaxis = list(
           range = c(0, 1e5),
-          title = "Hola"
+          title = "Personal Empleado",
+          showgrid=F
+        ),
+        yaxis=list(
+          showgrid=T
         )
       )
     
@@ -37,15 +41,29 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
       add_markers(frame = ~date, ids = ~PROVINCIA, text = ~PROVINCIA, hoverinfo = "text", span = I(0)) |>
       layout(
         xaxis = list(
-          range = c(0, 1e5)
+          range = c(0, 1e5),
+          title="Personal Empleado",
+          showgrid=F
+        ),
+        yaxis=list(
+          showgrid=T
         )
       )
     
     # Combinar ambos gráficos en un subplot
     subplot(p1, p2, shareY = TRUE, titleX = TRUE) |>
+      layout(
+        title=list(text="Evolución Grado de Ocupación vs Personal Empleado en cada Provincia",
+                   x=0)
+        )|>
       animation_opts(500, easing = "linear", redraw = TRUE) %>%
-      animation_button(x = 1, xanchor = "right", y = 0, yanchor = "bottom") %>%
-      animation_slider(currentvalue = list(prefix = "YEAR ", font = list(color = "red")))
+
+      animation_slider(currentvalue = list(  # Configurar el texto actual
+        prefix = "",        # Elimina "YEAR" del slider
+        font = list(color = "black")  # Cambiar el color a negro (opcional)
+      ),
+      steps = list(),       # Vaciar los steps elimina las etiquetas
+      tickcolor = "rgba(0,0,0,0)")
     
   })
 }
