@@ -1,12 +1,12 @@
-covid_events_render <- function(output, data) {
+covid_events_render <- function(output, data, color_linea = "#2d7d8c", color_event = "#88009d") {
   output$linePlot <- renderPlotly({
-    plot_ly(source = "covid_event_source", data, x = ~Fecha, y = ~pernoc, type = 'scatter', mode = 'lines', name = "Pernoctaciones", showlegend=F) %>%
+    plot_ly(source = "covid_event_source", data, x = ~Fecha, y = ~pernoc, type = 'scatter', mode = 'lines', name = "Pernoctaciones", showlegend=F, line = list(color=color_linea)) %>%
       add_trace(
         x = c(as.Date("2020-03-14"), as.Date("2020-03-14")),
         y = c(0, max(data$pernoc)),
         type = "scatter",
         mode = "lines",
-        line = list(color = "red", dash = "solid"),
+        line = list(color = color_event, dash = "solid"),
         name = "Mar 2020: Estado de alarma",
         showlegend = T
       ) %>%
@@ -15,7 +15,7 @@ covid_events_render <- function(output, data) {
         y = c(0, max(data$pernoc)),
         type = "scatter",
         mode = "lines",
-        line = list(color = "red", dash = "dash"),
+        line = list(color = color_event, dash = "dash"),
         name = "Jun 2020: Fin del estado de alarma",
         showlegend = T
       ) %>%
@@ -24,7 +24,7 @@ covid_events_render <- function(output, data) {
         y = c(0, max(data$pernoc)),
         type = "scatter",
         mode = "lines",
-        line = list(color = "red", dash = "dot"),
+        line = list(color = color_event, dash = "dot"),
         name = "Oct 2020: Nuevo estado de alarma",
         showlegend = T
       ) %>%
@@ -33,7 +33,7 @@ covid_events_render <- function(output, data) {
         y = c(0, max(data$pernoc)),
         type = "scatter",
         mode = "lines",
-        line = list(color = "red", dash = "dashdot"),
+        line = list(color = color_event, dash = "dashdot"),
         name = "Jul 2023: Fin de la crisis sanitaria",
         showlegend = T
       ) %>%
