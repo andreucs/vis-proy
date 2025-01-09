@@ -27,12 +27,14 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
             )
           ) |> 
           layout(
-            title = paste("Distribución de Estancia Media"),
+            title = list(
+              text = paste("Estancia Media en España por mes en", input$year),
+              x=0),
             xaxis = list(
-              title = "Estancia Media"
+              title = ""
             ),
             yaxis = list(
-              title = "Mes",
+              title = "",
               categoryorder = "array",
               categoryarray = rev(c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
                                     "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")),
@@ -74,13 +76,21 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
             color = I("steelblue")
           ) |> hide_legend() |>
           layout(
-            title = paste("Número de Turistas"),
+            title = list(
+              text = paste("Número de turistas por mes en España en", input$year),
+            x=0),
             xaxis = list(
-              title = "Mes"
+              title = "",
+              showgrid=FALSE,
+              zeroline=FALSE
             ),
             yaxis = list(
-              title = "Número de Turistas",
-              range = c(0, max_sum_turistas*1.25))
+              title = "",
+              range = c(0, max_sum_turistas*1.25),
+              zeroline=TRUE,
+              zerolinecolor="rgba(128, 128, 128, 0.20)",
+              zerolinewidth=2,
+              tickpadding = 35)
           ) |>
           config(
             modeBarButtonsToRemove = c(
@@ -105,7 +115,13 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
     
 
     if (length(selected_province) == 0) {
-      return(plot_ly() |> layout(title = "No se encontró ninguna provincia"))
+      return(plot_ly() |> layout(title = "Haz click sobre el texto correspondiente de cada provincia",
+                                                                                    xaxis= list(showgrid=FALSE,
+                                                                                                zeroline=FALSE,
+                                                                                                showticklabels=FALSE),
+                                                                                    yaxis=list(showgrid=FALSE,
+                                                                                               zeroline=FALSE,
+                                                                                               showticklabels=FALSE)))
     }
     
 
@@ -114,7 +130,13 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
       select(MES_COD, !!selected_var, PAIS_ORIGEN)
     
     if (nrow(province_data) == 0) {
-      return(plot_ly() |> layout(title = paste("No hay datos disponibles para la provincia:", selected_province)))
+      return(plot_ly() |> layout(title = paste("No hay datos disponibles para la provincia:", selected_province),
+                                 xaxis= list(showgrid=FALSE,
+                                             zeroline=FALSE,
+                                             showticklabels=FALSE),
+                                 yaxis=list(showgrid=FALSE,
+                                            zeroline=FALSE,
+                                            showticklabels=FALSE)))
     }
     
     if ((input$var == "ESTANCIA_MEDIA") && (!is.null(clickData))) {
@@ -137,16 +159,22 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
           )
         ) |> 
         layout(
-          title = paste("Distribución de Estancia Media - Provincia: ", selected_province),
+          title = list(
+            text = paste("Estancia Media por mes en", selected_province, "en", input$year),
+            x=0),
+          
+            
           xaxis = list(
-            title = "Mes",
+            title = "",
             categoryorder = "array",
             categoryarray = (c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
-                                "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))
+                                "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")),
+            showgrid=FALSE
           ),
           yaxis = list(
-            title = "Estancia Media",
-            zeroline = FALSE
+            title = "",
+            zeroline = FALSE,
+            showgrid=TRUE
           )
         ) |> hide_legend() |>
         config(
@@ -186,13 +214,21 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
           color = I("steelblue")
         ) |> hide_legend() |>
         layout(
-          title = paste("Número de Turistas - Provincia: ", selected_province),
+          title = list(
+            text = paste("Número de turistas por mes en", selected_province, "en", input$year),
+            x=0),
           xaxis = list(
-            title = "Mes"
+            title = "",
+            showgrid=FALSE,
+            zeroline=FALSE
           ),
           yaxis = list(
-            title = "Número de Turistas",
-            range = c(0, max_sum_turistas*1.25))
+            title = "",
+            range = c(0, max_sum_turistas*1.25),
+            zeroline=TRUE,
+            zerolinecolor="rgba(128, 128, 128, 0.20)",
+            zerolinewidth=2,
+            tickpadding = 35)
           ) |>
           config(
             modeBarButtonsToRemove = c(
