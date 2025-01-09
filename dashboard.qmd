@@ -16,6 +16,7 @@ library(mapSpain)
 library(bslib)
 library(bsicons)
 library(forecast)
+library(tidyr)
 
 turismo_receptor <- read_delim(
   "data/turismo_receptor_provincia_pais.csv",
@@ -102,6 +103,8 @@ tur_total_year <- turismo_receptor |>
 
 completo <- merge(tur_total_year, hex_prov, by = "PROVINCIA_DESTINO") |>
   st_as_sf()
+
+ccaa <- read.csv("data/Provincias_y_Comunidades_Autonomas.csv", sep=";")
 ```
 
 
@@ -178,7 +181,7 @@ plotlyOutput("animated")
 
 ### containerLoli {width="40%"}
 ```{r}
-plot(iris)
+plotlyOutput("lollipop")
 ```
 
 ## Row {height=40%}
@@ -248,6 +251,7 @@ source("server/render_violin_plot.R")
 source("server/render_bump_chart.R")
 source("server/render_barchart_contrib_selected.R")
 source("server/render_animated_bubble.R")
+source("server/render_lollipop.R")
 
 filtered_data <- get_filtered_data(input, completo)
 
@@ -266,4 +270,7 @@ render_bump_chart(output, input, get_ranking_provinces, create_inverted_ranking,
 render_barchart_contrib_selected(output, input, turismo_receptor)
 
 render_animated_bubble(output, input, ocup1)
+
+render_lollipop(output, input, ocup1, ccaa)
 ```
+
