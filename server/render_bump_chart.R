@@ -70,10 +70,7 @@ render_bump_chart <- function(output, input, get_ranking_provinces, create_inver
       legend = list(
         title = list(text = "Provincias")
       ),
-      annotations = annotations,
-      autosize = FALSE,
-      width = 800,
-      height = 400
+      annotations = annotations
     ) |> hide_legend() |>
       config(
         modeBarButtonsToRemove = c(
