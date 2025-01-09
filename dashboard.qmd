@@ -108,7 +108,7 @@ ccaa <- read.csv("data/Provincias_y_Comunidades_Autonomas.csv", sep=";")
 ```
 
 
-# Page 1
+# Mapa
 
 ## sidebar {.sidebar}
 
@@ -165,8 +165,41 @@ selectInput("var",
 plotlyOutput("violin_plot")
 ```
 
+# Provincias
 
-# Page 2 
+## sidebar {.sidebar}
+
+```{r}
+
+exclude_list <- c("Madrid", "Barcelona", "Málaga", "Illes Balears", "Las Palmas")
+
+
+filtered_choices <- setdiff(unique(turismo_receptor$PROVINCIA_DESTINO), exclude_list)
+
+
+selectInput("prov_bump", 
+            "Provincias", 
+            choices = filtered_choices,
+            multiple = T)
+
+selectInput("page3_year",
+             "Año",
+             choices=c(2019,2020,2021,2022,2023))
+```
+
+##
+
+```{r}
+plotlyOutput("bump_chart")
+```
+
+
+```{r}
+plotlyOutput("province_barplot")
+```
+
+
+# Hoteles
 
 ## row {height=60%}
 
@@ -206,39 +239,6 @@ plotlyOutput("arimaPlot")
 plotlyOutput("linePlot")
 ```
 
-# Page 3
-
-## sidebar {.sidebar}
-
-```{r}
-
-exclude_list <- c("Madrid", "Barcelona", "Málaga", "Illes Balears", "Las Palmas")
-
-
-filtered_choices <- setdiff(unique(turismo_receptor$PROVINCIA_DESTINO), exclude_list)
-
-
-selectInput("prov_bump", 
-            "Provincias", 
-            choices = filtered_choices,
-            multiple = T)
-
-selectInput("page3_year",
-             "Año",
-             choices=c(2019,2020,2021,2022,2023))
-```
-
-##
-
-```{r}
-plotlyOutput("bump_chart")
-```
-
-
-```{r}
-plotlyOutput("province_barplot")
-```
-
 
 ```{r}
 #| context: server
@@ -257,9 +257,20 @@ source("server/render_lollipop.R")
 
 filtered_data <- get_filtered_data(input, completo)
 
+colores <- list(
+  color1 = "#c6ffcf",
+  color2 = "#98e2c3",
+  color3 = "#6ac2b0",
+  color4 = "#449f9f",
+  color5 = "#2d7d8c",
+  color6 = "#1a5c73",
+  color7 = "#103c5c",
+  color8 = "#490084",
+  color9 = "#88009d"
+)
 render_hexmap(output, input, completo, hex_prov)
 
-render_barplot(output, input, turismo_receptor, hex_prov)
+render_barplot(output, input, turismo_receptor, hex_prov, color=colores$color4)
 
 covid_events_render(output, data)
 
@@ -271,7 +282,7 @@ render_bump_chart(output, input, get_ranking_provinces, create_inverted_ranking,
 
 render_barchart_contrib_selected(output, input, turismo_receptor)
 
-render_animated_bubble(output, input, ocup1)
+render_animated_bubble(output, input, ocup1, color_residentes = colores$color5, color_extranjeros = colores$color9)
 
 render_lollipop(output, input, ocup1, ccaa)
 ```
