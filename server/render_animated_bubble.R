@@ -1,37 +1,51 @@
-render_animated_bubble <- function(output, input, ocup) {
+render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7d8c", color_extranjeros = "#88009d") {
   
   output$animated <- renderPlotly({
     
     o <- ocup |> mutate(date = AÑO + (MES - 1) / 12) |>
-      filter(LUGAR_RESIDENCIA != "Total")|>
+      filter(LUGAR_RESIDENCIA != "Total") |>
       filter(AÑO > 2010)
-    # filter(PROVINCIA %in% c("Albacete", "Alicante", "Almería")) |>
     
+    # Gráfico para "Residentes en España"
     p1 <- o |>
       filter(LUGAR_RESIDENCIA == "Residentes en España") |>
-      plot_ly(x = ~PERSONAL_EMPLEADO, y = ~GRADO_OCUPA_PLAZAS, size = ~VIAJEROS) |>
-      add_markers(frame = ~date, ids = ~PROVINCIA) |>
+      plot_ly(
+        x = ~PERSONAL_EMPLEADO,
+        y = ~GRADO_OCUPA_PLAZAS,
+        size = ~VIAJEROS,
+        marker = list(color = color_residentes)  # Color personalizado para burbujas
+      ) |>
+      add_markers(frame = ~date, ids = ~PROVINCIA,
+                  text = ~PROVINCIA, hoverinfo = "text", span = I(0)
+      ) |>
       layout(
-        xaxis=list(
-          range=c(0, 1e5),
-          title="Hola"
+        xaxis = list(
+          range = c(0, 1e5),
+          title = "Hola"
         )
       )
     
+    # Gráfico para "Residentes en el Extranjero"
     p2 <- o |>
       filter(LUGAR_RESIDENCIA == "Residentes en el Extranjero") |>
-      plot_ly(x = ~PERSONAL_EMPLEADO, y = ~GRADO_OCUPA_PLAZAS, size = ~VIAJEROS)|>
-      add_markers(frame = ~date, ids = ~PROVINCIA, text = ~PROVINCIA, hoverinfo="text") |>
+      plot_ly(
+        x = ~PERSONAL_EMPLEADO,
+        y = ~GRADO_OCUPA_PLAZAS,
+        size = ~VIAJEROS,
+        marker = list(color = color_extranjeros)  # Color personalizado para burbujas
+      ) |>
+      add_markers(frame = ~date, ids = ~PROVINCIA, text = ~PROVINCIA, hoverinfo = "text", span = I(0)) |>
       layout(
-        xaxis=list(
-          range=c(0, 1e5)
+        xaxis = list(
+          range = c(0, 1e5)
         )
       )
     
-    subplot(p1,p2, shareY = T, titleX = T) |>
-      animation_opts(500, easing = "linear", redraw =T) %>%
-      animation_button( x = 1, xanchor = "right", y = 0, yanchor = "bottom") %>%
-      animation_slider(currentvalue = list(prefix = "YEAR ", font = list(color="red")))
+    # Combinar ambos gráficos en un subplot
+    subplot(p1, p2, shareY = TRUE, titleX = TRUE) |>
+      animation_opts(500, easing = "linear", redraw = TRUE) %>%
+      animation_button(x = 1, xanchor = "right", y = 0, yanchor = "bottom") %>%
+      animation_slider(currentvalue = list(prefix = "YEAR ", font = list(color = "red")))
     
   })
 }
