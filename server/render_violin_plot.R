@@ -1,4 +1,4 @@
-render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
+render_violin_plot <- function(output, input, turismo_receptor, hex_prov, color = "#2d7d8c") {
   output$violin_plot <- renderPlotly({
 
     clickData <- event_data("plotly_click", source = "hexmap_source")
@@ -16,6 +16,8 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
             split = ~MES_COD,
             type = 'violin',
             orientation = "v",
+            fillcolor = I(color),
+            line = list(color = color),
             text = ~paste("Estancia Media: ", ESTANCIA_MEDIA, "<br>País de Origen: ", PAIS_ORIGEN),
             hoverinfo = "text",
             points = F,
@@ -66,14 +68,15 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
           plot_ly() |>
           add_lines(
             x=~MES_COD,
-            y=~vis
+            y=~vis,
+            color = I(color)
           ) |>
           add_markers(
             x=~MES_COD,
             y=~vis,
             text=~paste("Número de Turistas: ", vis),
             hoverinfo = "text",
-            color = I("steelblue")
+            color = I(color)
           ) |> hide_legend() |>
           layout(
             title = list(
@@ -149,6 +152,8 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
           split = ~MES_COD,
           type = 'violin',
           orientation = "v",
+          fillcolor = I(color),
+          line = list(color = color),
           text = ~paste(input$var, ": ", .data[[input$var]], "<br>País de Origen: ", PAIS_ORIGEN),
           hoverinfo = "text",
           box = list(
@@ -204,14 +209,15 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov) {
         plot_ly() |>
         add_lines(
           x=~MES_COD,
-          y=~vis
+          y=~vis,
+          color = I(color)
         ) |>
         add_markers(
           x=~MES_COD,
           y=~vis,
           text=~paste("Número de Turistas: ", vis),
           hoverinfo = "text",
-          color = I("steelblue")
+          color = I(color)
         ) |> hide_legend() |>
         layout(
           title = list(

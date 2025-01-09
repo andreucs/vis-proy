@@ -33,7 +33,7 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov, color = "#
           ) |>
           layout(
             title = paste("Top 5 Países que más viajan a España en", input$year),
-            xaxis = list(title = "", showgrid = FALSE),
+            xaxis = list(title = "", showgrid = FALSE, x=0),
             yaxis = list(
               title = "Número de Turistas",
               range = c(0, max_turistas),
@@ -60,7 +60,7 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov, color = "#
     if (length(selected_province) == 0) {
       return(plot_ly() |>
         layout(
-          title = "Haz click sobre el texto correspondiente a cada provincia",
+          title = "Haz click sobre el texto correspondiente de cada provincia",
           xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE)
         ))
@@ -70,7 +70,13 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov, color = "#
       filter(AÑO == input$year, PROVINCIA_DESTINO == selected_province)
 
     if (nrow(province_data) == 0) {
-      return(plot_ly() |> layout(title = paste("No hay datos disponibles para la provincia:", selected_province)))
+      return(plot_ly() |> layout(title = "Haz click sobre el texto correspondiente de cada provincia",
+                                                                                    xaxis= list(showgrid=FALSE,
+                                                                                                zeroline=FALSE,
+                                                                                                showticklabels=FALSE),
+                                                                                    yaxis=list(showgrid=FALSE,
+                                                                                               zeroline=FALSE,
+                                                                                               showticklabels=FALSE)))
     }
 
     top_countries <- province_data |>
