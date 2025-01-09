@@ -1,16 +1,16 @@
-render_pred_vs_real <- function(output, data1, pred, datos_combinados) {
+render_pred_vs_real <- function(output, data1, pred, datos_combinados, color_real = "#2d7d8c", color_pred = "#88009d") {
   output$arimaPlot <- renderPlotly({
     plot_ly(source = "pred_vs_real") %>%
-      add_lines(x = ~data1$Fecha, y = ~data1$pernoc, name = "Real", line = list(color = "blue")) %>%
-      add_lines(x = ~pred$fecha, y = ~pred$pernoc, name = "Predicho", line = list(color = "red")) %>%
+      add_lines(x = ~data1$Fecha, y = ~data1$pernoc, name = "Real", line = list(color = color_real, width = 5)) %>%
+      add_lines(x = ~pred$fecha, y = ~pred$pernoc, name = "Predicho", line = list(color = color_pred, width = 5)) %>%
       add_ribbons(
         x = ~datos_combinados$fecha,
         ymin = ~datos_combinados$ymin,
         ymax = ~datos_combinados$ymax,
-        fillcolor = "rgba(255, 0, 0, 0.2)", line = list(width = 0), name = "Pérdidas COVID"
+        fillcolor = "#edc9ed", line = list(width = 0), name = "Pérdidas COVID"
       ) %>%
       layout(
-        title = "Predicción ARIMA vs Valores Reales",
+        title = "Estimación pernoctaciones modelo ARIMA vs Real",
         xaxis = list(title = "Fecha"),
         yaxis = list(title = "Pernoctaciones"),
         legend = list(orientation = "h", y = -0.2)
