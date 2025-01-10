@@ -211,13 +211,23 @@ plotlyOutput("province_barplot")
 ```
 
 
-### containerAnimated {width="60%"}
+### containerAnimated {width="50%"}
 ```{r}
 plotlyOutput("animated")
 ```
 
 
-### containerLoli {width="40%"}
+### containerLoli {width="50%"}
+
+```{r}
+#| content: card-sidebar
+selectInput("year_loli", 
+            "AÑO", 
+            choices = c(2010, 2011, 2012, 2013),
+            selected = 2010)
+```
+
+
 ```{r}
 plotlyOutput("lollipop")
 ```

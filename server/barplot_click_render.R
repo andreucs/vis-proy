@@ -70,7 +70,7 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov, color = "#
       filter(AÑO == input$year, PROVINCIA_DESTINO == selected_province)
 
     if (nrow(province_data) == 0) {
-      return(plot_ly() |> layout(title = "Haz click sobre el texto correspondiente de cada provincia",
+      return(plot_ly() |> layout(title = paste("No hay datos disponibles para", ),
                                                                                     xaxis= list(showgrid=FALSE,
                                                                                                 zeroline=FALSE,
                                                                                                 showticklabels=FALSE),

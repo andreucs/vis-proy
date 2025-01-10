@@ -14,6 +14,44 @@ lapply(list.of.packages, require, character.only=TRUE)
 ```
 
 ```{r}
+ocup1 <- read_csv("data/ocupacion.csv")
+
+ocup1 <- ocup1 |> filter(LUGAR_RESIDENCIA != "Total")
+
+ccaa <- read.csv("data/Provincias_y_Comunidades_Autonomas.csv", sep=";")
+
+ccaa$Comunidad_autonoma <- gsub("^Región de", "", ccaa$Comunidad_autonoma)
+    ccaa$Comunidad_autonoma <- gsub("^Comunidad de", "", ccaa$Comunidad_autonoma)
+    ccaa$Comunidad_autonoma <- gsub("^Comunidad", "C.", ccaa$Comunidad_autonoma)
+    
+ocup <- merge(ocup1, ccaa, by.x="PROVINCIA", by.y="Provincia", all.x=T) |>
+        filter(LUGAR_RESIDENCIA != "Total")
+
+ocup$anyomes <- paste(ocup1$AÑO, ocup1$MES, sep = "-")
+    
+ocup <- ocup |>
+      filter(AÑO >= 2010) |>
+      pivot_wider(
+        names_from = LUGAR_RESIDENCIA,
+        values_from = VIAJEROS,
+        names_prefix = "viajeros_"
+      ) |> filter(AÑO == 2013)
+
+d <- ocup |>
+    group_by(Comunidad_autonoma) |>
+    summarise(mean_residentes = 
+                  sum(`viajeros_Residentes en España`, 
+                       na.rm = TRUE), 
+                mean_extranjeros = sum(`viajeros_Residentes en el Extranjero`, 
+                                        na.rm = TRUE), .groups = "drop")
+
+d
+```
+
+
+
+
+```{r}
 turismo_receptor <- read_delim(
   "data/turismo_receptor_provincia_pais copy.csv",
   delim = ";",
