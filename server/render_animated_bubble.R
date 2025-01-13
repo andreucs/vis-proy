@@ -57,13 +57,19 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
                    x=0)
         )|>
       animation_opts(500, easing = "linear", redraw = TRUE) %>%
-
       animation_slider(currentvalue = list(  # Configurar el texto actual
         prefix = "",        # Elimina "YEAR" del slider
         font = list(color = "black")  # Cambiar el color a negro (opcional)
       ),
       steps = list(),       # Vaciar los steps elimina las etiquetas
-      tickcolor = "rgba(0,0,0,0)")
+      tickcolor = "rgba(0,0,0,0)") |>
+      config(
+        modeBarButtonsToRemove = c(
+          "zoom2d", "pan2d", "select2d", "lasso2d", 
+          "zoomIn2d", "zoomOut2d", "autoScale2d", 
+          "hoverClosestCartesian", "hoverCompareCartesian"
+        )
+      )
     
   })
 }
