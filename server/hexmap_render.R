@@ -6,7 +6,7 @@ render_hexmap <- function(output, input,completo, hex_prov, colors = c("#c6ffcf"
         split = ~NULL,
         color = ~cut(m, 
                      breaks = c(0, 5e5, 1e6, 5e6, 10e6, Inf),
-                     labels = c("0k-5k", "5k-1M", "1M-5M", "5M-10M", "10M+")),
+                     labels = c("0k-500k", "500k-1M", "1M-5M", "5M-10M", "10M+")),
         colors = colors,
         hoveron = "fills+points",
         text=~paste("Provincia:", PROVINCIA_DESTINO, "<br>Turistas:", format(m, big.mark = ",")),
