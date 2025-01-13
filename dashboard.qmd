@@ -164,6 +164,7 @@ plotlyOutput("violin_plot")
 
 # Provincias
 
+
 ## sidebar {.sidebar}
 
 ```{r}
@@ -185,6 +186,7 @@ selectInput("page3_year",
 ```
 
 ##
+Análisis del turismo extranjero por provincia
 
 ```{r}
 plotlyOutput("bump_chart")
@@ -197,6 +199,8 @@ plotlyOutput("province_barplot")
 
 
 # Hoteles
+
+Análisis de la ocupación hotelera en España
 
 ## row {height=60%}
 
