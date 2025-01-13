@@ -49,7 +49,7 @@ datos_combinados$ymax <- pmax(datos_combinados$pernoc.x, datos_combinados$pernoc
 arima_data <- merge(data1, pred, by.x = "Fecha", by.y = "fecha", all.x = TRUE) |>
              merge(datos_combinados, by.x = "Fecha", by.y = "fecha", all.x = TRUE)
 
-arima_data |> select(Fecha, AÑO.x, MES.x, pernoc.x.x, pernoc.x.y, ymin, ymax) |>
+arima_data <- arima_data |> select(Fecha, AÑO.x, MES.x, pernoc.x.x, pernoc.x.y, ymin, ymax) |>
     rename("AÑO" = "AÑO.x", "MES" = "MES.x", "Real" = "pernoc.x.x", "Predicho" = "pernoc.x.y")
 
 
