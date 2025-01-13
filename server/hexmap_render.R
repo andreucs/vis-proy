@@ -25,9 +25,8 @@ render_hexmap <- function(output, input,completo, hex_prov, colors = c("#c6ffcf"
       layout(
         title = list(
           text = paste("Turistas por provincia en", input$year),
-          x=0.225,
           xanchor = "center",
-          font = list(size = 20)
+          font = list(size = 15)
         ),
         
         hovermode = "closest",
