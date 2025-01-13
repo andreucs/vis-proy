@@ -16,6 +16,7 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov, color 
             split = ~MES_COD,
             type = 'violin',
             orientation = "v",
+            color = I("#88009d"),
             fillcolor = I(color),
             line = list(color = color),
             text = ~paste("Estancia Media: ", ESTANCIA_MEDIA, "<br>País de Origen: ", PAIS_ORIGEN),
@@ -30,8 +31,12 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov, color 
           ) |> 
           layout(
             title = list(
-              text = paste("Estancia Media en España por mes en", input$year),
-              x=0),
+              text = paste("Distribución de los turistas por país de residencia en España durante", input$year),
+              x=0,
+              font=list(
+                size=14
+              )
+              ),
             xaxis = list(
               title = ""
             ),
@@ -74,14 +79,17 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov, color 
           add_markers(
             x=~MES_COD,
             y=~vis,
-            text=~paste("Número de Turistas: ", vis),
+            text=~vis,
             hoverinfo = "text",
             color = I(color)
           ) |> hide_legend() |>
           layout(
             title = list(
               text = paste("Número de turistas por mes en España en", input$year),
-            x=0),
+            x=0,
+            font=list(
+              size=14
+            )),
             xaxis = list(
               title = "",
               showgrid=FALSE,
@@ -152,6 +160,7 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov, color 
           split = ~MES_COD,
           type = 'violin',
           orientation = "v",
+          color = I("#88009d"),
           fillcolor = I(color),
           line = list(color = color),
           text = ~paste(input$var, ": ", .data[[input$var]], "<br>País de Origen: ", PAIS_ORIGEN),
@@ -165,8 +174,11 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov, color 
         ) |> 
         layout(
           title = list(
-            text = paste("Estancia Media por mes en", selected_province, "en", input$year),
-            x=0),
+            text = paste("Distribución de los turistas por país de residencia en", selected_province, "en durante", input$year),
+            x=0,
+            font=list(
+              size=14
+            )),
           
             
           xaxis = list(
@@ -215,14 +227,17 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov, color 
         add_markers(
           x=~MES_COD,
           y=~vis,
-          text=~paste("Número de Turistas: ", vis),
+          text=~vis,
           hoverinfo = "text",
           color = I(color)
         ) |> hide_legend() |>
         layout(
           title = list(
             text = paste("Número de turistas por mes en", selected_province, "en", input$year),
-            x=0),
+            x=0,
+            font=list(
+              size=14
+            )),
           xaxis = list(
             title = "",
             showgrid=FALSE,
@@ -243,7 +258,6 @@ render_violin_plot <- function(output, input, turismo_receptor, hex_prov, color 
               "hoverClosestCartesian", "hoverCompareCartesian"
             )
           )
-        
         return(fig)
     }
     

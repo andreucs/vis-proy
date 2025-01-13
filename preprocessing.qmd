@@ -14,6 +14,56 @@ lapply(list.of.packages, require, character.only=TRUE)
 ```
 
 ```{r}
+
+
+turismo_receptor <- read_delim(
+  "data/turismo_receptor_provincia_pais.csv",
+  delim = ";",
+  locale = locale(decimal_mark = ",", encoding = "ISO-8859-1"),
+  col_types = cols(
+    AÑO = col_double(),
+    MES = col_double(),
+    TURISTAS = col_double(),
+    ESTANCIA_MEDIA = col_double(),
+    PROVINCIA_DESTINO = col_character(),
+    CONTINENTE_ORIGEN = col_character(),
+    PAIS_ORIGEN = col_character(),
+    PERNOCTACIONES = col_double()
+  )
+) |>
+  filter(!grepl("Total", PROVINCIA_DESTINO, ignore.case = TRUE)) |>
+  filter(!grepl("Total", PAIS_ORIGEN, ignore.case = TRUE))
+
+
+hex_prov <- esp_get_hex_prov() |>
+  rename(PROVINCIA_DESTINO = ine.prov.name) |>
+  select(PROVINCIA_DESTINO, label, codauto, nuts2.name, geom)
+
+
+hex_prov_coords <- hex_prov$geom |> st_centroid() |> st_coordinates()
+hex_prov$X <- hex_prov_coords[, 1]
+hex_prov$Y <- hex_prov_coords[, 2]
+
+turismo_receptor$PAIS_ORIGEN <- gsub("^Estados Unidos de América", "EE.UU", turismo_receptor$PAIS_ORIGEN)
+
+tur_total_year <- turismo_receptor |>
+                  group_by(AÑO, PROVINCIA_DESTINO) |>
+                  summarise(m=sum(TURISTAS))
+
+hex_prov$PROVINCIA_DESTINO <- gsub("^Palmas, Las", "Las Palmas", hex_prov$PROVINCIA_DESTINO)
+
+hex_prov$PROVINCIA_DESTINO <- gsub("^Coruña, A", "A Coruña", hex_prov$PROVINCIA_DESTINO)
+
+hex_prov$PROVINCIA_DESTINO <- gsub("^Rioja, La", "La Rioja", hex_prov$PROVINCIA_DESTINO)
+
+hex_prov$PROVINCIA_DESTINO <- gsub("^Balears, Illes", "Illes Balears", hex_prov$PROVINCIA_DESTINO)
+
+completo <- merge(tur_total_year, hex_prov, by = "PROVINCIA_DESTINO") |>
+  st_as_sf()
+
+```
+
+```{r}
 ocup1 <- read_csv("data/ocupacion.csv")
 
 ocup1 <- ocup1 |> filter(LUGAR_RESIDENCIA != "Total")
@@ -37,6 +87,7 @@ ocup <- ocup |>
         names_prefix = "viajeros_"
       ) |> filter(AÑO == 2013)
 
+
 d <- ocup |>
     group_by(Comunidad_autonoma) |>
     summarise(mean_residentes = 
@@ -47,9 +98,6 @@ d <- ocup |>
 
 d
 ```
-
-
-
 
 ```{r}
 turismo_receptor <- read_delim(
