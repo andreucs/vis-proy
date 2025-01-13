@@ -30,7 +30,7 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov, color = "#
             textposition = "top middle",
             showlegend = FALSE,
             hoverinfo = "none",
-            textfont = list(size = 7.5)
+            textfont = list(size = 10)
           ) |>
           layout(
             title = list(
@@ -106,7 +106,7 @@ render_barplot <- function(output, input, turismo_receptor, hex_prov, color = "#
           textposition = "top middle",
           showlegend = FALSE,
           hoverinfo = "none",
-          textfont = list(size = 7.5)
+          textfont = list(size = 10)
         ) |>
         layout(
           title = list(
