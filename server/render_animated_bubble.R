@@ -55,7 +55,7 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
       )
     
     # Combinar ambos gráficos en un subplot
-    subplot(p1, p2, shareY = TRUE, titleX = TRUE) |>
+    p <- subplot(p1, p2, shareY = TRUE, titleX = TRUE) |>
       layout(
         title=list(text="Evolución Grado de Ocupación vs Personal Empleado en cada Provincia",
                    x=0),
@@ -83,6 +83,7 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
           "hoverClosestCartesian", "hoverCompareCartesian"
         )
       )
+    
     
   })
 }
