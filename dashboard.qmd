@@ -178,7 +178,7 @@ filtered_choices <- setdiff(unique(turismo_receptor$PROVINCIA_DESTINO), exclude_
 
 
 selectInput("prov_bump", 
-            "Provincias", 
+            "Añadir provincias:", 
             choices = filtered_choices,
             multiple = T)
 
