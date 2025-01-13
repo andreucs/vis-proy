@@ -41,7 +41,7 @@ covid_events_render <- function(output, data, color_linea = "#2d7d8c", color_eve
         title = "Evolución de la gestión de la crisis en España",
         xaxis = list(title = ""),
         yaxis = list(title = "Pernoctaciones",
-                     range=c(0, 160e6)),
+                     range=c(0, 70e6)),
         legend = list(
           x = 0.01,
           y = 0.99,

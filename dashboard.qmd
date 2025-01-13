@@ -45,11 +45,11 @@ turismo_receptor$MES_COD <- factor(turismo_receptor$MES,
                                labels = c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
                                           "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))
 
-ocup <- readxl::read_excel("data/eoh_ccaa.xlsx")
+ocup <- read.csv("data/ocupacion.csv")
 
 ocup_nacional <- ocup |>
                  filter(LUGAR_RESIDENCIA == "Total") |>
-                 select(AÑO, MES, CCAA, PERNOCTACIONES) |>
+                 select(AÑO, MES, PROVINCIA, PERNOCTACIONES) |>
                  group_by(AÑO, MES) |>
                  summarise(pernoc=sum(PERNOCTACIONES, na.rm = TRUE), .groups = "drop")
 
@@ -84,9 +84,6 @@ datos_combinados$ymin <- pmin(datos_combinados$pernoc.x, datos_combinados$pernoc
 datos_combinados$ymax <- pmax(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
 
 ## Bump
-
-
-ocup1 <- read_csv("data/ocupacion.csv")
 
 hex_prov <- esp_get_hex_prov() |>
   rename(PROVINCIA_DESTINO = ine.prov.name) |>
@@ -292,8 +289,8 @@ render_bump_chart(output, input, get_ranking_provinces, create_inverted_ranking,
 
 render_barchart_contrib_selected(output, input, turismo_receptor)
 
-render_animated_bubble(output, input, ocup1, color_residentes = colores$color5, color_extranjeros = colores$color9)
+render_animated_bubble(output, input, ocup, color_residentes = colores$color5, color_extranjeros = colores$color9)
 
-render_lollipop(output, input, ocup1, ccaa)
+render_lollipop(output, input, ocup, ccaa)
 ```
 
