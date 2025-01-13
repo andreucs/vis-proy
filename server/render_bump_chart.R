@@ -20,7 +20,6 @@ render_bump_chart <- function(output, input, get_ranking_provinces, create_inver
         name = ~Province,
         mode = "lines+markers",
         marker = list(size = 10),
-        #text = ~Province,
         hoverinfo = "text",
         text = ~paste("Provincia: ", Province, "<br>",
                       "Posición: ", rev(Position), "<br>",
