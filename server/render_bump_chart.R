@@ -1,4 +1,4 @@
-render_bump_chart <- function(output, input, get_ranking_provinces, create_inverted_ranking, turismo_receptor) {
+render_bump_chart <- function(output, input, get_ranking_provinces, create_inverted_ranking, turismo_receptor, color_list) {
   output$bump_chart <- renderPlotly({
     exclude_list <- c("Madrid", "Barcelona", "Málaga", "Islas Baleares", "Las Palmas", "Illes Balears")
     combined_selection <- c(input$prov_bump, exclude_list)
@@ -7,7 +7,8 @@ render_bump_chart <- function(output, input, get_ranking_provinces, create_inver
       get_ranking_provinces(combined_selection) |>
       create_inverted_ranking()
     
-    
+    color_list <- as.character(color_list)
+    color_list <- rep(color_list, length.out = length(unique(data$Province)))
     data_highlight <- highlight_key(data, key = ~Province)
     
     p <- plot_ly(data_highlight)
@@ -20,6 +21,8 @@ render_bump_chart <- function(output, input, get_ranking_provinces, create_inver
         name = ~Province,
         mode = "lines+markers",
         marker = list(size = 10),
+        color = ~Province,
+        colors = color_list,
         hoverinfo = "text",
         text = ~paste("Provincia: ", Province, "<br>",
                       "Posición: ", rev(Position), "<br>",
