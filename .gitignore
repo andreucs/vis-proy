@@ -1,4 +1,6 @@
 dashboard_files/
+.quarto/
+rsconnect/
 .Rhistory
 
 dashboard.html
