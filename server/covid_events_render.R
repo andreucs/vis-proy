@@ -1,6 +1,16 @@
-covid_events_render <- function(output, data, color_linea = "#2d7d8c", color_event = "#88009d") {
+covid_events_render <- function(output, ocup, color_linea = "#2d7d8c", color_event = "#88009d") {
+  data <- ocup |>
+      filter(LUGAR_RESIDENCIA == "Total") |>
+      select(AÑO, MES, PROVINCIA, PERNOCTACIONES) |>
+      group_by(AÑO, MES) |>
+      summarise(pernoc=sum(PERNOCTACIONES, na.rm = TRUE), .groups = "drop") 
+    
+  data$Fecha <- as.Date(paste(data$AÑO, data$MES, "01", sep = "-"))
+  
   data <- data |>
     filter(Fecha >= as.Date("2010-01-01"))
+  
+  
   output$linePlot <- renderPlotly({
     plot_ly(source = "covid_event_source", data, x = ~Fecha, y = ~pernoc, type = 'scatter', mode = 'lines', name = "Pernoctaciones", showlegend=F, line = list(color=color_linea)) %>%
       add_trace(
@@ -42,9 +52,11 @@ covid_events_render <- function(output, data, color_linea = "#2d7d8c", color_eve
       layout(
         title = list(text = "Evolución de la gestión de la crisis en España",
                       y=0.95),
-        xaxis = list(title = ""),
+        xaxis = list(title = "",
+                     showgrid=F),
         yaxis = list(title = "Pernoctaciones",
-                     range=c(0, 70e6)),
+                     range=c(0, 90e6),
+                     showgrid=T),
         legend = list(
           x = 0.01,
           y = 0.89,

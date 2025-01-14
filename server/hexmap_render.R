@@ -1,4 +1,12 @@
-render_hexmap <- function(output, input,completo, hex_prov, colors = c("#c6ffcf", "#6ac2b0", "#449f9c", "#1a5c73", "#103c5c")) {
+render_hexmap <- function(output, input, turismo_receptor, hex_prov, colors = c("#c6ffcf", "#6ac2b0", "#449f9c", "#1a5c73", "#103c5c")) {
+  
+  tur_total_year <- turismo_receptor |>
+    group_by(AÑO, PROVINCIA_DESTINO) |>
+    summarise(m=sum(TURISTAS))
+  
+  completo <- merge(tur_total_year, hex_prov, by = "PROVINCIA_DESTINO") |>
+    st_as_sf()
+  
   output$hexmap <- renderPlotly({
     plot_ly(source = "hexmap_source", data = completo) |>
       filter(AÑO == input$year) |>
