@@ -13,7 +13,8 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
         x = ~PERSONAL_EMPLEADO,
         y = ~GRADO_OCUPA_PLAZAS,
         size = ~VIAJEROS,
-        marker = list(color = color_residentes)  # Color personalizado para burbujas
+        marker = list(color = color_residentes),  # Color personalizado para burbujas
+        name = "Turistas Nacionales"
       ) |>
       add_markers(frame = ~date, ids = ~PROVINCIA,
                   text = ~PROVINCIA, hoverinfo = "text", span = I(0)
@@ -21,10 +22,11 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
       layout(
         xaxis = list(
           range = c(0, 1e5),
-          title = "Personal Empleado",
+          title = "Personal Empleado (uds)",
           showgrid=F
         ),
         yaxis=list(
+          title="Grado de Ocupación (%)",
           showgrid=T
         )
       )
@@ -36,26 +38,34 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
         x = ~PERSONAL_EMPLEADO,
         y = ~GRADO_OCUPA_PLAZAS,
         size = ~VIAJEROS,
-        marker = list(color = color_extranjeros)  # Color personalizado para burbujas
+        marker = list(color = color_extranjeros),  # Color personalizado para burbujas
+        name = "Turistas Extranjeros"
       ) |>
       add_markers(frame = ~date, ids = ~PROVINCIA, text = ~PROVINCIA, hoverinfo = "text", span = I(0)) |>
       layout(
         xaxis = list(
           range = c(0, 1e5),
-          title="Personal Empleado",
+          title="Personal Empleado (uds)",
           showgrid=F
         ),
         yaxis=list(
+          title="Grado de Ocupación (%)",
           showgrid=T
         )
       )
     
     # Combinar ambos gráficos en un subplot
-    subplot(p1, p2, shareY = TRUE, titleX = TRUE) |>
+    p <- subplot(p1, p2, shareY = TRUE, titleX = TRUE) |>
       layout(
         title=list(text="Evolución Grado de Ocupación vs Personal Empleado en cada Provincia",
-                   x=0)
-        )|>
+                   x=0),
+        legend = list(
+          x = 0.8,
+          y = 0.9,
+          bgcolor = "rgba(255,255,255,0.5)",
+          bordercolor = "black",
+          borderwidth = 1
+        )) |>
       animation_opts(500, easing = "linear", redraw = TRUE) %>%
       animation_slider(currentvalue = list(  # Configurar el texto actual
         prefix = "",        # Elimina "YEAR" del slider
@@ -63,6 +73,9 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
       ),
       steps = list(),       # Vaciar los steps elimina las etiquetas
       tickcolor = "rgba(0,0,0,0)") |>
+      animation_button(
+        label = "Iniciar"
+      ) |>
       config(
         modeBarButtonsToRemove = c(
           "zoom2d", "pan2d", "select2d", "lasso2d", 
@@ -70,6 +83,7 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
           "hoverClosestCartesian", "hoverCompareCartesian"
         )
       )
+    
     
   })
 }
