@@ -37,7 +37,6 @@ cat(latex_table_turismo_receptor)
 ```
 
 ```{r}
-
 turismo_receptor <- turismo_receptor |>
   filter(!grepl("Total", PROVINCIA_DESTINO, ignore.case = TRUE)) |>
   filter(!grepl("Total", PAIS_ORIGEN, ignore.case = TRUE)) |>
@@ -51,7 +50,7 @@ turismo_receptor$MES_COD <- factor(turismo_receptor$MES,
                                          "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))
 
 
-save(turismo_receptor, file = "data/turismo_receptor.RData")
+#save(turismo_receptor, file = "data/turismo_receptor.RData")
 ```
 
 
@@ -93,19 +92,18 @@ pred <- data.frame(
   pernoc = predicciones$mean
 )
 
-save(pred, file = "data/pred.RData")
-save(real, file = "data/real.RData")
-
-data_filtrado <- real %>%
-  filter(Fecha %in% pred$fecha)
-
-datos_combinados <- merge(pred, data_filtrado, by.x = "fecha", by.y = "Fecha", all.x = TRUE)
-
-datos_combinados$ymin <- pmin(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
-datos_combinados$ymax <- pmax(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
-
-datos_combinados
+#save(pred, file = "data/pred.RData")
+#save(real, file = "data/real.RData")
 ```
+
+
+```{r}
+ocup <- ocup |>
+        select(-c(ESTANCIA_MEDIA, PLAZAS_ESTIMADAS, HABITACIONES_ESTIMADAS, GRADO_OCUPA_PLAZAS_FIN_SEMANA, GRADO_OCUPA_POR_HABITANTES))
+
+#save(ocup, file="data/ocupacion.RData")
+```
+
 
 ```{r}
 hex_prov <- esp_get_hex_prov() |>

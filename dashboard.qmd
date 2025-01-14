@@ -22,8 +22,8 @@ load("data/turismo_receptor.RData")
 load("data/pred.RData")
 load("data/real.RData")
 load("data/hex_prov.RData")
+load("data/ocupacion.RData")
 
-ocup <- read.csv("data/ocupacion.csv")
 ccaa <- read.csv("data/Provincias_y_Comunidades_Autonomas.csv", sep=";")
 
 ```
