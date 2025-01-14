@@ -6,3 +6,5 @@ rsconnect/
 dashboard.html
 
 .DS_Store
+
+/.quarto/

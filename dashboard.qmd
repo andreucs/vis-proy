@@ -41,7 +41,8 @@ turismo_receptor$PAIS_ORIGEN <- gsub("^Estados Unidos de América", "EE.UU", tur
 turismo_receptor$MES_COD <- factor(turismo_receptor$MES, 
                                levels = 1:12, 
                                labels = c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
-                                          "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))
+                                         "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))
+
 ocup <- read.csv("data/ocupacion.csv")
 
 ocup_nacional <- ocup |>
@@ -49,6 +50,7 @@ ocup_nacional <- ocup |>
                  select(AÑO, MES, PROVINCIA, PERNOCTACIONES) |>
                  group_by(AÑO, MES) |>
                  summarise(pernoc=sum(PERNOCTACIONES, na.rm = TRUE), .groups = "drop")
+
 
 data <- ocup_nacional
 data$Fecha <- as.Date(paste(data$AÑO, data$MES, "01", sep = "-"))
@@ -77,8 +79,6 @@ datos_combinados <- merge(pred, data1_filtrado, by.x = "fecha", by.y = "Fecha", 
 datos_combinados$ymin <- pmin(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
 datos_combinados$ymax <- pmax(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
 
-## Bump
-
 hex_prov <- esp_get_hex_prov() |>
   rename(PROVINCIA_DESTINO = ine.prov.name) |>
   select(PROVINCIA_DESTINO, label, codauto, nuts2.name, geom)
@@ -90,16 +90,15 @@ hex_prov$Y <- hex_prov_coords[, 2]
 tur_total_year <- turismo_receptor |>
                   group_by(AÑO, PROVINCIA_DESTINO) |>
                   summarise(m=sum(TURISTAS))
+
 hex_prov$PROVINCIA_DESTINO <- gsub("^Palmas, Las", "Las Palmas", hex_prov$PROVINCIA_DESTINO)
-
 hex_prov$PROVINCIA_DESTINO <- gsub("^Coruña, A", "A Coruña", hex_prov$PROVINCIA_DESTINO)
-
 hex_prov$PROVINCIA_DESTINO <- gsub("^Rioja, La", "La Rioja", hex_prov$PROVINCIA_DESTINO)
-
 hex_prov$PROVINCIA_DESTINO <- gsub("^Balears, Illes", "Illes Balears", hex_prov$PROVINCIA_DESTINO)
 
 completo <- merge(tur_total_year, hex_prov, by = "PROVINCIA_DESTINO") |>
   st_as_sf()
+
 
 ccaa <- read.csv("data/Provincias_y_Comunidades_Autonomas.csv", sep=";")
 ```

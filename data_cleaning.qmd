@@ -1,0 +1,144 @@
+---
+title: "Data cleaning"
+format: html
+editor: visual
+---
+
+```{r}
+library(readr)
+library(plotly)
+library(dplyr)
+library(sf)
+library(mapSpain)
+library(bslib)
+library(bsicons)
+library(forecast)
+library(tidyr)
+library(kableExtra)
+
+
+turismo_receptor <- read_delim(
+  "data/turismo_receptor_provincia_pais.csv",
+  delim = ";",
+  locale = locale(decimal_mark = ",", encoding = "ISO-8859-1"),
+  col_types = cols(
+    AÑO = col_double(),
+    MES = col_double(),
+    TURISTAS = col_double(),
+    ESTANCIA_MEDIA = col_double(),
+    PROVINCIA_DESTINO = col_character(),
+    CONTINENTE_ORIGEN = col_character(),
+    PAIS_ORIGEN = col_character(),
+    PERNOCTACIONES = col_double()
+  )
+)
+
+latex_table_turismo_receptor <- turismo_receptor %>%
+  tail() %>%
+  kbl(format = "latex", booktabs = TRUE) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
+cat(latex_table_turismo_receptor)
+```
+
+```{r}
+turismo_receptor <- turismo_receptor |>
+  filter(!grepl("Total", PROVINCIA_DESTINO, ignore.case = TRUE)) |>
+  filter(!grepl("Total", PAIS_ORIGEN, ignore.case = TRUE)) |>
+  select(-c(CONTINENTE_ORIGEN))
+  
+turismo_receptor$PAIS_ORIGEN <- gsub("^Estados Unidos de América", "EE.UU", turismo_receptor$PAIS_ORIGEN)
+
+turismo_receptor$MES_COD <- factor(turismo_receptor$MES, 
+                               levels = 1:12, 
+                               labels = c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
+                                         "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))
+```
+
+
+```{r}
+ocup <- read.csv("data/ocupacion.csv")
+
+latex_table_ocup <- ocup %>%
+  tail() %>%
+  kbl(format = "latex", booktabs = TRUE) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
+cat(latex_table_ocup)
+```
+
+```{r}
+
+
+ocup_nacional <- ocup |>
+                 filter(LUGAR_RESIDENCIA == "Total") |>
+                 select(AÑO, MES, PROVINCIA, PERNOCTACIONES) |>
+                 group_by(AÑO, MES) |>
+                 summarise(pernoc=sum(PERNOCTACIONES, na.rm = TRUE), .groups = "drop")
+
+
+data <- ocup_nacional
+data$Fecha <- as.Date(paste(data$AÑO, data$MES, "01", sep = "-"))
+
+data_filtered <- ocup_nacional[ocup_nacional$AÑO < 2020, ]
+
+ts_data <- ts(data_filtered$pernoc, start = c(1999, 1), frequency = 12)
+
+modelo <- Arima(ts_data, order = c(1, 0, 2), seasonal = c(0, 1, 1), include.drift = TRUE)
+
+predicciones <- forecast(modelo, h = 42)
+
+data1 <- data |> 
+        filter(Fecha >= "2019-1-1", Fecha <= "2023-6-1")
+
+pred <- data.frame(
+  fecha = seq(from = as.Date("2020-01-01"), by = "month", length.out = 42),
+  pernoc = predicciones$mean
+)
+
+data1_filtrado <- data1 %>%
+  filter(Fecha %in% pred$fecha)
+
+datos_combinados <- merge(pred, data1_filtrado, by.x = "fecha", by.y = "Fecha", all.x = TRUE)
+
+datos_combinados$ymin <- pmin(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
+datos_combinados$ymax <- pmax(datos_combinados$pernoc.x, datos_combinados$pernoc.y, na.rm = TRUE)
+```
+
+```{r}
+hex_prov <- esp_get_hex_prov() |>
+  rename(PROVINCIA_DESTINO = ine.prov.name) |>
+  select(PROVINCIA_DESTINO, label, codauto, nuts2.name, geom)
+
+latex_table_hex_prov <- hex_prov %>%
+  tail() %>%
+  kbl(format = "latex", booktabs = TRUE) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
+cat(latex_table_hex_prov)
+```
+
+```{r}
+hex_prov <- esp_get_hex_prov() |>
+  rename(PROVINCIA_DESTINO = ine.prov.name) |>
+  select(PROVINCIA_DESTINO, label, codauto, nuts2.name, geom)
+
+hex_prov_coords <- hex_prov$geom |> st_centroid() |> st_coordinates()
+hex_prov$X <- hex_prov_coords[, 1]
+hex_prov$Y <- hex_prov_coords[, 2]
+
+tur_total_year <- turismo_receptor |>
+                  group_by(AÑO, PROVINCIA_DESTINO) |>
+                  summarise(m=sum(TURISTAS))
+
+hex_prov$PROVINCIA_DESTINO <- gsub("^Palmas, Las", "Las Palmas", hex_prov$PROVINCIA_DESTINO)
+hex_prov$PROVINCIA_DESTINO <- gsub("^Coruña, A", "A Coruña", hex_prov$PROVINCIA_DESTINO)
+hex_prov$PROVINCIA_DESTINO <- gsub("^Rioja, La", "La Rioja", hex_prov$PROVINCIA_DESTINO)
+hex_prov$PROVINCIA_DESTINO <- gsub("^Balears, Illes", "Illes Balears", hex_prov$PROVINCIA_DESTINO)
+
+completo <- merge(tur_total_year, hex_prov, by = "PROVINCIA_DESTINO") |>
+  st_as_sf()
+
+
+ccaa <- read.csv("data/Provincias_y_Comunidades_Autonomas.csv", sep=";")
+```
