@@ -1,6 +1,6 @@
 covid_events_render <- function(output, data, color_linea = "#2d7d8c", color_event = "#88009d") {
   data <- data |>
-    filter(Fecha >= as.Date("2011-01-01"))
+    filter(Fecha >= as.Date("2010-01-01"))
   output$linePlot <- renderPlotly({
     plot_ly(source = "covid_event_source", data, x = ~Fecha, y = ~pernoc, type = 'scatter', mode = 'lines', name = "Pernoctaciones", showlegend=F, line = list(color=color_linea)) %>%
       add_trace(

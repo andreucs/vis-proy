@@ -2,9 +2,13 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
   
   output$animated <- renderPlotly({
     
-    o <- ocup |> mutate(date = AÑO + (MES - 1) / 12) |>
+    # Crear la columna `date` con formato "YYYY-MM"
+    o <- ocup |> 
+      mutate(
+        date = sprintf("%d-%02d", AÑO, MES)  # Formato "YYYY-MM"
+      ) |>
       filter(LUGAR_RESIDENCIA != "Total") |>
-      filter(AÑO > 2010)
+      filter(AÑO >= 2010)
     
     # Gráfico para "Residentes en España"
     p1 <- o |>
@@ -17,7 +21,8 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
         name = "Turistas Nacionales"
       ) |>
       add_markers(frame = ~date, ids = ~PROVINCIA,
-                  text = ~PROVINCIA, hoverinfo = "text", span = I(0)
+                  text = ~paste(PROVINCIA, "<br>Año-Mes:", date),  # Mostrar Año-Mes en el hover
+                  hoverinfo = "text", span = I(0)
       ) |>
       layout(
         xaxis = list(
@@ -41,7 +46,10 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
         marker = list(color = color_extranjeros),  # Color personalizado para burbujas
         name = "Turistas Extranjeros"
       ) |>
-      add_markers(frame = ~date, ids = ~PROVINCIA, text = ~PROVINCIA, hoverinfo = "text", span = I(0)) |>
+      add_markers(frame = ~date, ids = ~PROVINCIA, 
+                  text = ~paste(PROVINCIA, "<br>Año-Mes:", date),  # Mostrar Año-Mes en el hover
+                  hoverinfo = "text", span = I(0)
+      ) |>
       layout(
         xaxis = list(
           range = c(0, 1e5),
@@ -57,8 +65,8 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
     # Combinar ambos gráficos en un subplot
     p <- subplot(p1, p2, shareY = TRUE, titleX = TRUE) |>
       layout(
-        title=list(text="Evolución Grado de Ocupación vs Personal Empleado en cada Provincia",
-                   x=0),
+        title = list(text="Evolución Grado de Ocupación vs Personal Empleado en cada Provincia",
+                     x = 0),
         legend = list(
           x = 0.8,
           y = 0.9,
@@ -68,7 +76,7 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
         )) |>
       animation_opts(500, easing = "linear", redraw = TRUE) %>%
       animation_slider(currentvalue = list(  # Configurar el texto actual
-        prefix = "",        # Elimina "YEAR" del slider
+        prefix = "",  # Elimina "YEAR" del slider
         font = list(color = "black")  # Cambiar el color a negro (opcional)
       ),
       steps = list(),       # Vaciar los steps elimina las etiquetas
@@ -84,6 +92,6 @@ render_animated_bubble <- function(output, input, ocup, color_residentes = "#2d7
         )
       )
     
-    
+    p
   })
 }
