@@ -3,17 +3,67 @@ title: "Data cleaning"
 format: html
 editor: visual
 ---
+## Carga librerías necesarias
 
 ```{r}
 setwd(".")
 
-list.of.packages <- c("plotly", "dplyr", "readr", "sf", "mapSpain", "bslib", "bsicons", "forecast", "tidyr", "kableExtra")
+list.of.packages <- c("plotly", "dplyr", "readr", "sf", "mapSpain", "bslib", "bsicons", "forecast", "tidyr", "kableExtra", "magrittr", "readxl")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 lapply(list.of.packages, require, character.only=TRUE)
+```
 
+## Integración datasets por provincias (ocupación hotelera)
+
+```{r}
+#leemos las provincias.
+provincias = read.table("raw_data/provincias.txt", header = FALSE, sep = "\n")
+```
+
+```{r}
+ocup <- data.frame()
+
+# Recorremos las provincias
+for (p in provincias[,1]) {
+  # Limpiamos el nombre de la provincia
+  p_clean <- gsub(" ", "", p)
+  
+  # Leemos el archivo correspondiente a hoteles
+  a_h <- read_excel(sprintf('raw_data/hoteles/%s.xlsx', p_clean))
+  print(sprintf('raw_data/hoteles/%s.xlsx', p_clean))
+  # Filtramos los años de interés y lugar de residencia "Total"
+  ah <- a_h[(a_h$AÑO >= 1999 & a_h$AÑO <= 2023), ]
+  
+  # Eliminamos las columnas "ESTABLECIMIENTOS_ESTIMADOS" y "PERNOCTACIONES"
+  ah <- ah[, !(colnames(ah) %in% c("ESTABLECIMIENTOS_ESTIMADOS"))]
+  
+  # Tratamos los casos donde no hay datos
+  if (nrow(ah) == 0) {
+    ah <- data.frame(matrix(NA, nrow = 84, ncol = ncol(a_h) - 2))
+    colnames(ah) <- colnames(a_h)[!(colnames(a_h) %in% c("ESTABLECIMIENTOS_ESTIMADOS"))]
+  }
+  
+  # Combinamos los datos con el resultado final
+  if (nrow(ocup) == 0) {
+    ocup <- ah
+  } else {
+    ocup <- rbind(ocup, ah)
+  }
+}
+```
+
+```{r}
+#guardamos el archivo de datos.
+write.csv(ocup,file="raw_data/ocupacion.csv",row.names=FALSE)
+```
+
+
+## Limpieza dataset turismo receptor (provincia-país)
+
+```{r}
 turismo_receptor <- read_delim(
-  "data/turismo_receptor_provincia_pais.csv",
+  "raw_data/turismo_receptor_provincia_pais.csv",
   delim = ";",
   locale = locale(decimal_mark = ",", encoding = "ISO-8859-1"),
   col_types = cols(
@@ -28,6 +78,7 @@ turismo_receptor <- read_delim(
   )
 )
 
+# Obtenemos los 5 últimos valores del dataset para adjuntario en la memoria
 latex_table_turismo_receptor <- turismo_receptor %>%
   tail() %>%
   kbl(format = "latex", booktabs = TRUE) %>%
@@ -37,6 +88,10 @@ cat(latex_table_turismo_receptor)
 ```
 
 ```{r}
+# Eliminamos el registro correspondiente a cualquier total
+# Es decir, Total Europa, Total Nacional, etc
+# Podrían causar problemas en la agregación de información
+
 turismo_receptor <- turismo_receptor |>
   filter(!grepl("Total", PROVINCIA_DESTINO, ignore.case = TRUE)) |>
   filter(!grepl("Total", PAIS_ORIGEN, ignore.case = TRUE)) |>
@@ -44,18 +99,23 @@ turismo_receptor <- turismo_receptor |>
   
 turismo_receptor$PAIS_ORIGEN <- gsub("^Estados Unidos de América", "EE.UU", turismo_receptor$PAIS_ORIGEN)
 
+# Creamos una nueva variable
+# Decodificamos la variable mes. Abreviación de su nombre completo.
+
 turismo_receptor$MES_COD <- factor(turismo_receptor$MES, 
                                levels = 1:12, 
                                labels = c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
                                          "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))
 
-
+# Se guarda como binario en R
 #save(turismo_receptor, file = "data/turismo_receptor.RData")
 ```
 
+## Limpieza dataset ocupación (generado anteriormente)
+
 
 ```{r}
-ocup <- read.csv("data/ocupacion.csv")
+ocup <- read.csv("raw_data/ocupacion.csv")
 
 latex_table_ocup <- ocup %>%
   tail() %>%
@@ -66,22 +126,25 @@ cat(latex_table_ocup)
 ```
 
 ```{r}
+# Se obtiene los datos de ocupación nacional por año-mes
 ocup_nacional <- ocup |>
                  filter(LUGAR_RESIDENCIA == "Total") |>
                  select(AÑO, MES, PROVINCIA, PERNOCTACIONES) |>
                  group_by(AÑO, MES) |>
                  summarise(pernoc=sum(PERNOCTACIONES, na.rm = TRUE), .groups = "drop")
 
-
+# Se preparan los datos para realizar un modelo ARIMA
 data_og <- ocup_nacional
 data_og$Fecha <- as.Date(paste(data_og$AÑO, data_og$MES, "01", sep = "-"))
 
+# Se entrenará un modelo con datos desde 1999 hasta 2019. 20 años. 240 entradas año-mes
 data_filtered <- ocup_nacional[ocup_nacional$AÑO < 2020, ]
 
 ts_ocup <- ts(data_filtered$pernoc, start = c(1999, 1), frequency = 12)
 
 modelo <- Arima(ts_ocup, order = c(1, 0, 2), seasonal = c(0, 1, 1), include.drift = TRUE)
 
+# Preparamos la información para que se pueda visualizar
 predicciones <- forecast(modelo, h = 42)
 
 real <- data_og |> 
@@ -98,14 +161,19 @@ pred <- data.frame(
 
 
 ```{r}
+# Hay variables irrelevantes para el estudio. Se eliminan
 ocup <- ocup |>
         select(-c(ESTANCIA_MEDIA, PLAZAS_ESTIMADAS, HABITACIONES_ESTIMADAS, GRADO_OCUPA_PLAZAS_FIN_SEMANA, GRADO_OCUPA_POR_HABITANTES))
 
 #save(ocup, file="data/ocupacion.RData")
 ```
 
+## Limpieza dataset polígonos hexagonales
 
 ```{r}
+# El dataset lo integra la librería mapSpain
+# Seleccionamos solo las columnas que nos interesan
+
 hex_prov <- esp_get_hex_prov() |>
   rename(PROVINCIA_DESTINO = ine.prov.name) |>
   select(PROVINCIA_DESTINO, label, codauto, nuts2.name, geom)
@@ -119,21 +187,21 @@ cat(latex_table_hex_prov)
 ```
 
 ```{r}
-hex_prov <- esp_get_hex_prov() |>
-  rename(PROVINCIA_DESTINO = ine.prov.name) |>
-  select(PROVINCIA_DESTINO, label, codauto, nuts2.name, geom)
+# Obtenemos las coordenadas del centroide del hexágono para poder añadir texto
 
 hex_prov_coords <- hex_prov$geom |> st_centroid() |> st_coordinates()
 hex_prov$X <- hex_prov_coords[, 1]
 hex_prov$Y <- hex_prov_coords[, 2]
+
+# Modificamos el nombre de algunas provincias
+# para realizar el merge por provincias sin perder información
 
 hex_prov$PROVINCIA_DESTINO <- gsub("^Palmas, Las", "Las Palmas", hex_prov$PROVINCIA_DESTINO)
 hex_prov$PROVINCIA_DESTINO <- gsub("^Coruña, A", "A Coruña", hex_prov$PROVINCIA_DESTINO)
 hex_prov$PROVINCIA_DESTINO <- gsub("^Rioja, La", "La Rioja", hex_prov$PROVINCIA_DESTINO)
 hex_prov$PROVINCIA_DESTINO <- gsub("^Balears, Illes", "Illes Balears", hex_prov$PROVINCIA_DESTINO)
 
-save(hex_prov, file = "data/hex_prov.RData")
-
+#save(hex_prov, file = "data/hex_prov.RData")
 ```
 
 
