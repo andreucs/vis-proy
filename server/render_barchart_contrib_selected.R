@@ -1,4 +1,4 @@
-render_barchart_contrib_selected <- function(output, input, turismo_receptor) {
+render_barchart_contrib_selected <- function(output, input, turismo_receptor, bar_color="#449f9f") {
   output$province_barplot <- renderPlotly({
     
     
@@ -24,7 +24,7 @@ render_barchart_contrib_selected <- function(output, input, turismo_receptor) {
       y = ~reorder(PROVINCIA_DESTINO, Percentage),
       type = "bar",
       orientation = "h",
-      marker = list(color = c("steelblue", "grey"))
+      marker = list(color = bar_color)
     ) |> 
       layout(
         title = list(

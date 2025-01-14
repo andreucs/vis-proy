@@ -163,6 +163,7 @@ plotlyOutput("violin_plot")
 
 # Provincias
 
+
 ## sidebar {.sidebar}
 
 ```{r}
@@ -184,6 +185,7 @@ selectInput("page3_year",
 ```
 
 ##
+Análisis del turismo extranjero por provincia
 
 ```{r}
 plotlyOutput("bump_chart")
@@ -196,6 +198,8 @@ plotlyOutput("province_barplot")
 
 
 # Hoteles
+
+Análisis de la ocupación hotelera en España
 
 ## row {height=60%}
 
@@ -284,7 +288,7 @@ render_pred_vs_real(output, data1, pred, datos_combinados)
 
 render_violin_plot(output, input, turismo_receptor, hex_prov)
 
-render_bump_chart(output, input, get_ranking_provinces, create_inverted_ranking, turismo_receptor)
+render_bump_chart(output, input, get_ranking_provinces, create_inverted_ranking, turismo_receptor, colores)
 
 render_barchart_contrib_selected(output, input, turismo_receptor)
 
