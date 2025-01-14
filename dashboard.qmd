@@ -39,10 +39,10 @@ selectInput("year",
 
 |                             |
 |-----------------------------|
-| **Andreu Bonet Pavia**      |
-| **Anna Gil Moliner**        |
-| **Laiqian Ji**              |
-| **Ernesto Martínez Gómez**  |            
+| **[Andreu Bonet Pavia](https://www.linkedin.com/in/andreu-bonet-pavia-8a5a72298/)**      |
+| **[Anna Gil Moliner](https://www.linkedin.com/in/anna-gil-moliner-494b00265/)**        |
+| **[Laiqian Ji](https://www.linkedin.com/in/jilaiqian/)**              |
+| **[Ernesto Martínez Gómez](https://www.linkedin.com/in/ernestomg/)**  |            
 
 ::: {.callout-note}
 ## Fuente de Datos
