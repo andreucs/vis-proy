@@ -1,5 +1,5 @@
 ---
-title: "My Dashboard"
+title: "Turismo en España"
 format: dashboard
 theme: flatly
 server: shiny
@@ -7,15 +7,11 @@ server: shiny
 
 ```{r}
 #| context: setup
-library(readr)
+
 library(plotly)
 library(dplyr)
-library(sf)
-library(mapSpain)
-library(bslib)
-library(bsicons)
-library(forecast)
 library(tidyr)
+library(sf)
 
 
 load("data/turismo_receptor.RData")
@@ -28,8 +24,7 @@ ccaa <- read.csv("data/Provincias_y_Comunidades_Autonomas.csv", sep=";")
 
 ```
 
-
-# Mapa
+# Mapa 
 
 ## sidebar {.sidebar}
 
@@ -128,14 +123,6 @@ Análisis de la ocupación hotelera en España
 
 ## row {height=60%}
 
-```{r}
-#| content: card-sidebar
-
-#selectInput("year", "Año", choices = c("Si", "No"))
-
-```
-
-
 ### containerAnimated {width="50%"}
 ```{r}
 plotlyOutput("animated")
@@ -148,7 +135,10 @@ plotlyOutput("animated")
 #| content: card-sidebar
 selectInput("year_loli", 
             "AÑO", 
-            choices = c(2010, 2011, 2012, 2013),
+            choices = c(2010, 2011, 2012, 2013,
+                        2014, 2015, 2016, 2017, 
+                        2018, 2019, 2020, 2021,
+                        2022, 2023),
             selected = 2010)
 ```
 

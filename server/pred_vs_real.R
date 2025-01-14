@@ -16,7 +16,8 @@ render_pred_vs_real <- function(output, real, pred, color_real = "#2d7d8c", colo
         x = ~datos_combinados$fecha,
         ymin = ~datos_combinados$ymin,
         ymax = ~datos_combinados$ymax,
-        fillcolor = "#edc9ed", line = list(width = 0), name = "Pérdidas COVID"
+        fillcolor = "#edc9ed", line = list(width = 0), name = "Pérdidas COVID",
+        hoverinfo="none"
       ) %>%
       layout(
         title = "Estimación pernoctaciones modelo ARIMA vs Real",

@@ -3,12 +3,13 @@ title: "Data cleaning"
 format: html
 editor: visual
 ---
+
 ## Carga librerías necesarias
 
 ```{r}
 setwd(".")
 
-list.of.packages <- c("plotly", "dplyr", "readr", "sf", "mapSpain", "bslib", "bsicons", "forecast", "tidyr", "kableExtra", "magrittr", "readxl")
+list.of.packages <- c("dplyr", "readr", "sf", "mapSpain", "forecast", "tidyr", "kableExtra", "magrittr", "readxl")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 lapply(list.of.packages, require, character.only=TRUE)
@@ -57,7 +58,6 @@ for (p in provincias[,1]) {
 #guardamos el archivo de datos.
 write.csv(ocup,file="raw_data/ocupacion.csv",row.names=FALSE)
 ```
-
 
 ## Limpieza dataset turismo receptor (provincia-país)
 
@@ -113,7 +113,6 @@ turismo_receptor$MES_COD <- factor(turismo_receptor$MES,
 
 ## Limpieza dataset ocupación (generado anteriormente)
 
-
 ```{r}
 ocup <- read.csv("raw_data/ocupacion.csv")
 
@@ -159,7 +158,6 @@ pred <- data.frame(
 #save(real, file = "data/real.RData")
 ```
 
-
 ```{r}
 # Hay variables irrelevantes para el estudio. Se eliminan
 ocup <- ocup |>
@@ -203,6 +201,3 @@ hex_prov$PROVINCIA_DESTINO <- gsub("^Balears, Illes", "Illes Balears", hex_prov$
 
 #save(hex_prov, file = "data/hex_prov.RData")
 ```
-
-
-
