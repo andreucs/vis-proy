@@ -52,7 +52,7 @@ render_lollipop <- function(output, input, ocup1, ccaa, color_residentes = "#2d7
       ) |>
       layout(
         title = list(
-              text="Promedio de viajeros por comunidad autónoma",
+              text=paste("Total de viajeros por comunidad autónoma en", input$year_loli),
               x=0),
         xaxis = list(title = "",
                      zeroline=F,
