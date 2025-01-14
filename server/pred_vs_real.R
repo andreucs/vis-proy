@@ -11,7 +11,7 @@ render_pred_vs_real <- function(output, data1, pred, datos_combinados, color_rea
       ) %>%
       layout(
         title = "Estimación pernoctaciones modelo ARIMA vs Real",
-        xaxis = list(title = "Fecha"),
+        xaxis = list(title = ""),
         yaxis = list(title = "Pernoctaciones"),
         legend = list(orientation = "h", y = -0.2)
       ) |>
