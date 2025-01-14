@@ -1,6 +1,3 @@
-library(data.table)
-
-
 get_ranking_provinces <- function(df_prov, province_list, min_year = 2019, max_year = 2023) {
   df_prov <- as.data.table(df_prov)
   all_ranks <- lapply(min_year:max_year, function(year) {

@@ -12,7 +12,7 @@ library(plotly)
 library(dplyr)
 library(tidyr)
 library(sf)
-
+library(data.table)
 
 load("data/turismo_receptor.RData")
 load("data/pred.RData")
@@ -169,7 +169,6 @@ plotlyOutput("linePlot")
 #| context: server
 
 source("server/data_transformations.R")
-source("server/filter_functions.R")
 source("server/hexmap_render.R")
 source("server/barplot_click_render.R")
 source("server/covid_events_render.R")
@@ -179,8 +178,6 @@ source("server/render_bump_chart.R")
 source("server/render_barchart_contrib_selected.R")
 source("server/render_animated_bubble.R")
 source("server/render_lollipop.R")
-
-filtered_data <- get_filtered_data(input, completo)
 
 colores <- list(
   color1 = "#c6ffcf",
