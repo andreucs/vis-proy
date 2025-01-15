@@ -23,6 +23,8 @@ Una vez instalado, se puede ejecutar lo siguiente en la terminal:
 quarto serve dashboard.qmd
 ```
 
+Alternativamente, en RStudio se puede abrir el archivo `dashboard.qmd` y ejecutar el dashboard pulsando el botón `Run Document`.
+
 ## Despliegue
 
 Para desplegar la aplicación, se ha usado la liberería `rsconnect`.
